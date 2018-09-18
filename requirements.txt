@@ -1,0 +1,4 @@
+PyQt5
+vk_api
+bs4
+wget
