@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""  
+"""
   Copyright (C) 2018 Adrian Polyakov
   
   This file is part of VkMusic Downloader
@@ -24,8 +24,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-import os.path
 import sys
+import os.path
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -41,22 +41,22 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.login = QtWidgets.QLineEdit(self.centralwidget)
-        self.login.setGeometry(QtCore.QRect(340, 10, 181, 31))
+        self.login.setGeometry(QtCore.QRect(350, 10, 181, 31))
         self.login.setObjectName("login")
         self.login_text = QtWidgets.QLabel(self.centralwidget)
-        self.login_text.setGeometry(QtCore.QRect(10, 10, 331, 31))
+        self.login_text.setGeometry(QtCore.QRect(60, 10, 291, 31))
         font = QtGui.QFont()
-        font.setPointSize(13)
+        font.setPointSize(11)
         self.login_text.setFont(font)
         self.login_text.setObjectName("login_text")
         self.password_text = QtWidgets.QLabel(self.centralwidget)
-        self.password_text.setGeometry(QtCore.QRect(270, 50, 61, 31))
+        self.password_text.setGeometry(QtCore.QRect(290, 50, 61, 31))
         font = QtGui.QFont()
-        font.setPointSize(13)
+        font.setPointSize(11)
         self.password_text.setFont(font)
         self.password_text.setObjectName("password_text")
         self.password = QtWidgets.QLineEdit(self.centralwidget)
-        self.password.setGeometry(QtCore.QRect(340, 50, 181, 31))
+        self.password.setGeometry(QtCore.QRect(350, 50, 181, 31))
         self.password.setInputMethodHints(QtCore.Qt.ImhHiddenText|QtCore.Qt.ImhNoAutoUppercase|QtCore.Qt.ImhNoPredictiveText|QtCore.Qt.ImhSensitiveData)
         self.password.setInputMask("")
         self.password.setText("")
@@ -64,13 +64,13 @@ class Ui_MainWindow(object):
         self.password.setDragEnabled(False)
         self.password.setObjectName("password")
         self.link_text = QtWidgets.QLabel(self.centralwidget)
-        self.link_text.setGeometry(QtCore.QRect(60, 90, 281, 31))
+        self.link_text.setGeometry(QtCore.QRect(10, 90, 351, 31))
         font = QtGui.QFont()
-        font.setPointSize(13)
+        font.setPointSize(11)
         self.link_text.setFont(font)
         self.link_text.setObjectName("link_text")
         self.user_link = QtWidgets.QLineEdit(self.centralwidget)
-        self.user_link.setGeometry(QtCore.QRect(340, 90, 181, 31))
+        self.user_link.setGeometry(QtCore.QRect(350, 90, 181, 31))
         self.user_link.setObjectName("user_link")
         self.btnConfirm = QtWidgets.QPushButton(self.centralwidget)
         self.btnConfirm.setGeometry(QtCore.QRect(590, 440, 181, 29))
@@ -85,7 +85,7 @@ class Ui_MainWindow(object):
         self.status_label.setObjectName("status_label")
         self.saveData = QtWidgets.QCheckBox(self.centralwidget)
         self.saveData.setEnabled(True)
-        self.saveData.setGeometry(QtCore.QRect(530, 90, 251, 27))
+        self.saveData.setGeometry(QtCore.QRect(540, 90, 111, 27))
         self.saveData.setObjectName("saveData")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(10, 410, 331, 21))
@@ -150,7 +150,7 @@ class Ui_MainWindow(object):
         self.trackList.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
         self.trackList.setObjectName("trackList")
         self.enableSorting = QtWidgets.QCheckBox(self.centralwidget)
-        self.enableSorting.setGeometry(QtCore.QRect(530, 46, 171, 41))
+        self.enableSorting.setGeometry(QtCore.QRect(540, 50, 171, 41))
         self.enableSorting.setStatusTip("")
         self.enableSorting.setTristate(False)
         self.enableSorting.setObjectName("enableSorting")
@@ -164,7 +164,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "VKMusic Downloader"))
         self.login_text.setText(_translate("MainWindow", "Номер телефона или электронная почта:"))
         self.password_text.setText(_translate("MainWindow", "Пароль:"))
-        self.link_text.setText(_translate("MainWindow", "Ссылка на профиль пользователя:"))
+        self.link_text.setText(_translate("MainWindow", "Ссылка на профиль пользователя (сообщества):"))
         self.btnConfirm.setToolTip(_translate("MainWindow", "Получить список аудиозаписей пользователя"))
         self.btnConfirm.setText(_translate("MainWindow", "Получить аудиозаписи"))
         self.status_label.setText(_translate("MainWindow", "Статус:"))
@@ -183,6 +183,7 @@ class Ui_MainWindow(object):
         self.downloadSelected.setText(_translate("MainWindow", "Скачать выбранные"))
         self.progressBar.setFormat(_translate("MainWindow", "Скачано %v из %m"))
         self.progress_label.setText(_translate("MainWindow", "Прогресс скачивания:"))
+        self.trackList.setSortingEnabled(False)
         self.enableSorting.setToolTip(_translate("MainWindow", "Сортировать спсиок в алфавитном порядке?"))
         self.enableSorting.setText(_translate("MainWindow", "Сортировать список"))
 
@@ -192,4 +193,3 @@ def resource_path(relative_path):
     except AttributeError:
         base_path = os.path.abspath('.')
     return os.path.join(base_path, relative_path)
-    

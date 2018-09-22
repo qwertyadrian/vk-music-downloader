@@ -50,6 +50,7 @@ class GetAudioListThread(QThread):
     def _get_user_audio(self, user_login, user_password, userlink):
         tracks = []
         offset = 0
+        url = 'https://m.vk.com/audios{}'
         session = VkApi(login=user_login, password=user_password, auth_handler=self.auth_handler,
                         config_filename=cookie)
         self.statusInfo.setText('Авторизация.')
@@ -58,13 +59,19 @@ class GetAudioListThread(QThread):
         session.http.cookies.update(dict(remixmdevice='1920/1080/1/!!-!!!!'))
         user_id = userlink.replace('https://vk.com/', '').replace('https://m.vk.com/', '')
         me = api_vk.users.get()[0]
+        if not user_id:
+            user_id = None
         try:
             id = api_vk.users.get(user_ids=user_id)[0]
-        except IndexError:
-            id = me
-        url = 'https://m.vk.com/audios{}'.format(id['id'])
-        self.statusInfo.setText('Получение списка аудиозаписей пользователя: {} {}'.format(id['first_name'],
-                                                                                           id['last_name']))
+            url = url.format(id['id'])
+            self.statusInfo.setText('Получение списка аудиозаписей пользователя: {} {}'.format(id['first_name'],
+                                                                                                id['last_name']))
+        except:
+            id = None
+        if not id:
+            group_id = api_vk.groups.getById(group_id=user_id)[0]
+            url = url.format(-int(group_id['id']))
+            self.statusInfo.setText('Получение списка аудиозаписей сообщества: {}'.format(group_id['name']))
         while True:
             response = session.http.get(url, params={'offset': offset}, allow_redirects=False)
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -112,6 +119,8 @@ class GetAudioListThread(QThread):
         except exceptions.ApiError as e:
             if '113' in str(e):
                 self.signal.emit('Неверная ссылка на профиль пользователя (неверный ID пользователя).')
+            elif '100' in str(e):
+                self.signal.emit('Неверная ссылка на профиль пользователя (сообщества).')
             else:
                 self.signal.emit(str(e))
         except Exception as e:
