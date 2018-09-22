@@ -61,12 +61,13 @@ class GetAudioListThread(QThread):
         me = api_vk.users.get()[0]
         if not user_id:
             user_id = None
+        # noinspection PyBroadException
         try:
             id = api_vk.users.get(user_ids=user_id)[0]
             url = url.format(id['id'])
             self.statusInfo.setText('Получение списка аудиозаписей пользователя: {} {}'.format(id['first_name'],
                                                                                                 id['last_name']))
-        except:
+        except Exception:
             id = None
         if not id:
             group_id = api_vk.groups.getById(group_id=user_id)[0]
@@ -154,12 +155,14 @@ class DownloadAudio(QThread):
             download(track['link'], out=name, bar=None)
             n += 1
             self.change_progress(n)
-        os.chdir('../')
         return 'Скачивание завершено'
     
     def run(self):
-        result = self._download_audio(self.tracks, self.directory)
-        self.signal.emit(result)
+        try:
+            result = self._download_audio(self.tracks, self.directory)
+            self.signal.emit(result)
+        except Exception as e:
+            self.signal.emit(e)
 
     def change_progress(self, n):
         self.int_signal.emit(n)
@@ -189,6 +192,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.login.setText(info[0])
             self.password.setText(info[1])
             self.user_link.setText(info[2])
+
+        # TODO Реализовать автообновление программы
+        # update = QtWidgets.QMessageBox.question(self, 'Доступно обновление', 'Установить обновление 0.2.0')
         
         self.tracks = None
         self.string = None
@@ -214,11 +220,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.get_audio.password = self.password.text()
         self.get_audio.user_link = self.user_link.text()
         self.get_audio.statusInfo = self.statusInfo
-        self.btnConfirm.setEnabled(False)
-        self.downloadAll.setEnabled(False)
-        self.saveAll.setEnabled(False)
-        self.saveWithoutLinks.setEnabled(False)
-        self.downloadSelected.setEnabled(False)
+        self.toggle_buttons(False)
         self.trackList.clear()
         self.statusInfo.setText('Процесс получение аудиозаписей начался.\n')
         self.get_audio.start()
@@ -227,25 +229,22 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if result and isinstance(result, tuple):
             self.tracks = result[0]
             self.string = result[1]
-            self.btnConfirm.setEnabled(True)
             self.statusInfo.setText('Список аудиозаписей получен.\n{}, {} шт.'.format(self.string, len(self.tracks)))
-            #row = 0
-            self.saveAll.setEnabled(True)
-            self.saveWithoutLinks.setEnabled(True)
-            self.downloadSelected.setEnabled(True)
-            self.downloadAll.setEnabled(True)
+            # row = 0
             self.trackList.setEnabled(True)
-            self.btnConfirm.setEnabled(True)
+            self.toggle_buttons(True)
             for track in self.tracks:
                 self.trackList.addItem('%(artist)s — %(title)s' % track)
-                #self.trackList.setRowCount(len(self.tracks))
-                #self.trackList.setItem(row, 0, QtWidgets.QTableWidgetItem(track['artist']))
-                #self.trackList.setItem(row, 1, QtWidgets.QTableWidgetItem(track['title']))
-                #row += 1
-            #self.trackList.resizeColumnsToContents()
+                # TODO Изучить работу с таблицами в PyQt5
+                # self.trackList.setRowCount(len(self.tracks))
+                # self.trackList.setItem(row, 0, QtWidgets.QTableWidgetItem(track['artist']))
+                # self.trackList.setItem(row, 1, QtWidgets.QTableWidgetItem(track['title']))
+                # row += 1
+            # self.trackList.resizeColumnsToContents()
         elif isinstance(result, str):
             self.btnConfirm.setEnabled(True)
-            self.statusInfo.setText('\nОшибка: ' + result)
+            self.statusInfo.setText('<html><head/><body><p><span style=" color:#ff0000;">Ошибка: {}'
+                                    '</span></p></body></html>'.format(result))
     
     def save_all(self):
         directory = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить как', filter='Text files (*.txt)')[0]
@@ -280,14 +279,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.progress_label.setEnabled(True)
             self.progressBar.setEnabled(True)
             self.progressBar.setMaximum(len(self.tracks))
-            self.downloadAll.setEnabled(False)
-            self.saveAll.setEnabled(False)
-            self.saveWithoutLinks.setEnabled(False)
-            self.downloadSelected.setEnabled(False)
-            self.btnConfirm.setEnabled(False)
+            self.toggle_buttons(False)
             self.download_audio.start()
 
     def download_selected(self):
+        directory = None
         selected = self.trackList.selectedItems()
         selected_tracks = []
         for element in selected:
@@ -305,25 +301,32 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.progress_label.setEnabled(True)
             self.progressBar.setEnabled(True)
             self.progressBar.setMaximum(len(selected_tracks))
-            self.downloadAll.setEnabled(False)
-            self.saveAll.setEnabled(False)
-            self.saveWithoutLinks.setEnabled(False)
-            self.downloadSelected.setEnabled(False)
-            self.btnConfirm.setEnabled(False)
+            self.toggle_buttons(False)
             self.download_audio.start()
+        else:
+            self.statusInfo.setText('<html><head/><body><p><span style=" color:#ff0000;">'
+                                    'Ничего не выбрано для скачивания или было отменено диалоговое с выбором папки'
+                                    '</span></p></body></html>')
             
-    
     def done(self, result):
-        self.downloadAll.setEnabled(True)
-        self.saveAll.setEnabled(True)
-        self.saveWithoutLinks.setEnabled(True)
-        self.downloadSelected.setEnabled(True)
-        self.btnConfirm.setEnabled(True)
-        self.statusInfo.setText(result)
+        self.toggle_buttons(True)
+        if isinstance(result, str):
+            self.statusInfo.setText(result)
+        else:
+            self.statusInfo.setText('<html><head/><body><p><span style=" color:#ff0000;">При скачивании'
+                                    ' произошла ошибка: {}'
+                                    '</span></p></body></html>'.format(result))
 
     def change_progress(self, result):
         self.progressBar.setValue(result)
-        
+
+    def toggle_buttons(self, state: bool):
+        self.downloadAll.setEnabled(state)
+        self.saveAll.setEnabled(state)
+        self.saveWithoutLinks.setEnabled(state)
+        self.downloadSelected.setEnabled(state)
+        self.btnConfirm.setEnabled(state)
+
 
 def ui():
     global window
