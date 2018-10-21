@@ -31,9 +31,11 @@ from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 import audio_gui
 from vk_api import VkApi, exceptions
 from vk_api.audio_url_decoder import decode_audio_url
+from vk_api.audio import VkAudio
 from bs4 import BeautifulSoup
 from wget import download
 from re import sub
+from datetime import timedelta
 
 
 class GetAudioListThread(QThread):
@@ -51,14 +53,13 @@ class GetAudioListThread(QThread):
         self.wait()
 
     def _get_user_audio(self, user_login, user_password, userlink):
-        tracks = []
-        offset = 0
         url = 'https://m.vk.com/audios{}'
         session = VkApi(login=user_login, password=user_password, auth_handler=self.auth_handler,
                         config_filename=cookie)
         self.statusInfo.setText('Авторизация.')
         session.auth()
         api_vk = session.get_api()
+        vk_audio = VkAudio(session)
         session.http.cookies.update(dict(remixmdevice='1920/1080/1/!!-!!!!'))
         user_id = userlink.replace('https://vk.com/', '').replace('https://m.vk.com/', '')
         me = api_vk.users.get()[0]
@@ -69,13 +70,27 @@ class GetAudioListThread(QThread):
             id = api_vk.users.get(user_ids=user_id)[0]
             url = url.format(id['id'])
             self.statusInfo.setText('Получение списка аудиозаписей пользователя: {} {}'.format(id['first_name'],
-                                                                                                id['last_name']))
+                                                                                               id['last_name']))
         except Exception:
             id = None
         if not id:
             group_id = api_vk.groups.getById(group_id=user_id)[0]
             url = url.format(-int(group_id['id']))
             self.statusInfo.setText('Получение списка аудиозаписей сообщества: {}'.format(group_id['name']))
+        tracks, string = self._get_audio(session, url, me)
+        albums = vk_audio.get_albums(id['id'])
+        # a[:a.find('/audio?act=audio_playlist')] + a[a.rfind('/audio?act=audio_playlist'):]
+        for album in albums:
+            a = album['url']
+            album['url'] = a[:a.find('/audio?act=audio_playlist')] + a[a.rfind('/audio?act=audio_playlist'):]
+            album['tracks'], tmp = self._get_audio(session, album['url'], me)
+        tracks.sort(key=lambda d: d['artist'])
+        return tracks, string, albums
+
+    @staticmethod
+    def _get_audio(session, url, me):
+        tracks = []
+        offset = 0
         while True:
             response = session.http.get(url, params={'offset': offset}, allow_redirects=False)
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -91,13 +106,19 @@ class GetAudioListThread(QThread):
                     continue
                 if 'audio_api_unavailable' in link:
                     link = decode_audio_url(link, me['id'])
-                temp.append({'artist': artist, 'title': title, 'duration': duration, 'link': link})
-            tracks += temp[:-6]
-            if int(soup.find_all('div', {'class': 'audioPage__count'})[0].string.split()[0]) <= offset:
+                temp.append({'artist': artist.lstrip(), 'title': title, 'duration': duration, 'link': link})
+            if len(temp) < 6:
+                tracks = temp.copy()
+            else:
+                tracks += temp[:-6]
+            try:
+                if int(soup.find_all('div', {'class': 'audioPage__count'})[0].string.split()[0]) <= offset:
+                    break
+                offset += 50
+            except IndexError:
                 break
-            offset += 50
         return tracks, soup.title.string
-    
+
     def auth_handler(self):
         """
         При двухфакторной аутентификации вызывается эта функция.
@@ -159,7 +180,7 @@ class DownloadAudio(QThread):
             n += 1
             self.change_progress(n)
         return 'Скачивание завершено'
-    
+
     def run(self):
         try:
             result = self._download_audio(self.tracks, self.directory)
@@ -169,7 +190,7 @@ class DownloadAudio(QThread):
 
     def change_progress(self, n):
         self.int_signal.emit(n)
-    
+
 
 # noinspection PyArgumentList,PyCallByClass
 class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
@@ -212,11 +233,12 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         music_menu.addAction(self.downloadSelected)
 
         self.trackList.itemDoubleClicked.connect(self.play_track)
-        
+        self.trackList.itemExpanded.connect(self.on_item_expanded)
+
         self.get_audio = GetAudioListThread()
         self.get_audio.signal.connect(self.finished)
         self.get_audio.str_signal.connect(self.auth_handler)
-        
+
         self.download_audio = DownloadAudio()
         self.download_audio.signal.connect(self.done)
         self.download_audio.int_signal.connect(lambda x: self.progressBar.setValue(x))
@@ -226,6 +248,12 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         video_item.setSize(QSizeF(1, 1))
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.mediaPlayer.setVideoOutput(video_item)
+        self.mediaPlayer.stateChanged.connect(lambda x: [self.toggle_buttons(True), self.toggle_fields(True)])
+        self.mediaPlayer\
+            .positionChanged.connect(lambda x:
+                                     self.statusBar().showMessage('Воспроизводится {}: {} / {} Громкость: {}'.format(
+                                         self.selected[0].text(0), timedelta(milliseconds=x),
+                                         timedelta(milliseconds=self.mediaPlayer.duration()), self.current_volume)))
         
         if info:
             self.login.setText(info[0])
@@ -233,9 +261,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.user_link.setText(info[2])
 
         # TODO Реализовать автообновление программы
-        
+
+        self.selected = None
         self.tracks = None
         self.string = None
+        self.albums = None
         self.key = None
 
     def auth_handler(self, result):
@@ -250,10 +280,6 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 data = self.login.text() + '|' + self.password.text() + '|' + self.user_link.text()
                 data_crypted = codecs.encode(bytes(data, 'utf-8'), 'hex')
                 d.write(data_crypted)
-        if self.enableSorting.isChecked():
-            self.trackList.setSortingEnabled(True)
-        else:
-            self.trackList.setSortingEnabled(False)
         self.get_audio.login = self.login.text()
         self.get_audio.password = self.password.text()
         self.get_audio.user_link = self.user_link.text()
@@ -267,6 +293,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if result and isinstance(result, tuple):
             self.tracks = result[0]
             self.string = result[1]
+            self.albums = result[2]
             self.statusInfo.setText('Список аудиозаписей получен.'
                                     ' Зажмите Ctrl для множественного выбора'
                                     '\n{}, {} шт.'.format(self.string, len(self.tracks)))
@@ -274,7 +301,13 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.trackList.setEnabled(True)
             self.toggle_buttons(True)
             for track in self.tracks:
-                self.trackList.addItem('%(artist)s — %(title)s' % track)
+                self.trackList.addTopLevelItem(QtWidgets.QTreeWidgetItem(self.trackList,
+                                                                         ['%(artist)s — %(title)s' % track]))
+            for album in self.albums:
+                root = QtWidgets.QTreeWidgetItem(self.trackList, [album['title']])
+                root.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.ShowIndicator)
+                root.setFlags(Qt.ItemIsEnabled)
+                self.trackList.addTopLevelItem(root)
                 # TODO Изучить работу с таблицами в PyQt5
                 # self.trackList.setRowCount(len(self.tracks))
                 # self.trackList.setItem(row, 0, QtWidgets.QTableWidgetItem(track['artist']))
@@ -328,7 +361,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         selected_tracks = []
         for element in selected:
             for track in self.tracks:
-                if element.text() in '%(artist)s — %(title)s' % track:
+                if element.text(0) in '%(artist)s — %(title)s' % track:
                     selected_tracks.append(track)
                     break
         if selected_tracks:
@@ -358,13 +391,18 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                                     '</span></p></body></html>'.format(result))
 
     def play_track(self):
-        selected = self.trackList.selectedItems()
+        self.selected = self.trackList.selectedItems()
         selected_tracks = []
-        for element in selected:
-            for track in self.tracks:
-                if element.text() in '%(artist)s — %(title)s' % track:
-                    selected_tracks.append(track)
-                    break
+        for track in self.tracks:
+            if self.selected[0].text(0) in '%(artist)s — %(title)s' % track:
+                selected_tracks.append(track)
+                break
+        if not selected_tracks:
+            for album in self.albums:
+                for track in album['tracks']:
+                    if self.selected[0].text(0) in '%(artist)s — %(title)s' % track:
+                        selected_tracks.append(track)
+                        break
         local = QUrl(selected_tracks[0]['link'])
         media = QMediaContent(local)
         self.mediaPlayer.setMedia(media)
@@ -382,15 +420,35 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             if self.current_volume < 100:
                 self.current_volume += 2
                 self.mediaPlayer.setVolume(self.current_volume)
+            self.statusBar().showMessage('Текущая громкость: {}'.format(self.current_volume))
         elif e.key() == Qt.Key_Down:
             if self.current_volume > 0:
                 self.current_volume -= 2
                 self.mediaPlayer.setVolume(self.current_volume)
+            self.statusBar().showMessage('Текущая громкость: {}'.format(self.current_volume))
         elif e.key() == Qt.Key_Space:
             if self.mediaPlayer.state() == 1:
                 self.mediaPlayer.pause()
+                self.toggle_fields(False)
+                self.toggle_buttons(False)
+                self.downloadSelected.setEnabled(True)
             elif self.mediaPlayer.state() == 2:
                 self.mediaPlayer.play()
+                self.toggle_fields(False)
+                self.toggle_buttons(False)
+                self.downloadSelected.setEnabled(True)
+        elif e.key() == Qt.Key_Left:
+            self.mediaPlayer.setPosition(self.mediaPlayer.position() - 2000)
+        elif e.key() == Qt.Key_Right:
+            self.mediaPlayer.setPosition(self.mediaPlayer.position() + 2000)
+
+    def on_item_expanded(self, item):
+        if item.childCount():
+            return
+        for album in self.albums:
+            if album['title'] == item.text(0):
+                for track in album['tracks']:
+                    QtWidgets.QTreeWidgetItem(item, ['%(artist)s — %(title)s' % track])
 
     def toggle_buttons(self, state: bool):
         self.downloadAll.setEnabled(state)
@@ -405,7 +463,6 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.user_link.setEnabled(state)
         self.trackList.setEnabled(state)
         self.saveData.setEnabled(state)
-        self.enableSorting.setEnabled(state)
 
 
 def ui():

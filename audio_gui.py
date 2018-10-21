@@ -121,18 +121,13 @@ class Ui_MainWindow(object):
         font.setPointSize(10)
         self.progress_label.setFont(font)
         self.progress_label.setObjectName("progress_label")
-        self.trackList = QtWidgets.QListWidget(self.centralwidget)
+        self.trackList = QtWidgets.QTreeWidget(self.centralwidget)
         self.trackList.setEnabled(False)
         self.trackList.setGeometry(QtCore.QRect(10, 200, 761, 211))
         self.trackList.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.trackList.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.trackList.setObjectName("trackList")
-        self.enableSorting = QtWidgets.QCheckBox(self.centralwidget)
-        self.enableSorting.setGeometry(QtCore.QRect(540, 50, 171, 41))
-        self.enableSorting.setStatusTip("")
-        self.enableSorting.setChecked(True)
-        self.enableSorting.setTristate(False)
-        self.enableSorting.setObjectName("enableSorting")
+        self.trackList.header().setVisible(False)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -153,8 +148,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "Список аудиозаписей:"))
         self.progressBar.setFormat(_translate("MainWindow", "Скачано %v из %m"))
         self.progress_label.setText(_translate("MainWindow", "Прогресс скачивания:"))
-        self.enableSorting.setToolTip(_translate("MainWindow", "Сортировать спсиок в алфавитном порядке?"))
-        self.enableSorting.setText(_translate("MainWindow", "Сортировать список"))
+        self.trackList.headerItem().setText(0, _translate("MainWindow", "Аудиозаписи"))
 
 def resource_path(relative_path):
     try:

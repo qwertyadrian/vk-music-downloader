@@ -16,7 +16,7 @@
   <property name="minimumSize">
    <size>
     <width>780</width>
-    <height>480</height>
+    <height>490</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -293,7 +293,7 @@
      <string>Прогресс скачивания:</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="trackList">
+   <widget class="QTreeWidget" name="trackList">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -311,31 +311,14 @@
     <property name="selectionMode">
      <enum>QAbstractItemView::ExtendedSelection</enum>
     </property>
-   </widget>
-   <widget class="QCheckBox" name="enableSorting">
-    <property name="geometry">
-     <rect>
-      <x>540</x>
-      <y>50</y>
-      <width>171</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>Сортировать спсиок в алфавитном порядке?</string>
-    </property>
-    <property name="statusTip">
-     <string/>
-    </property>
-    <property name="text">
-     <string>Сортировать список</string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-    <property name="tristate">
+    <attribute name="headerVisible">
      <bool>false</bool>
-    </property>
+    </attribute>
+    <column>
+     <property name="text">
+      <string>Аудиозаписи</string>
+     </property>
+    </column>
    </widget>
   </widget>
  </widget>
