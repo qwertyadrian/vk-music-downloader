@@ -26,7 +26,7 @@ import codecs
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QThread, pyqtSignal, QSizeF, QUrl, Qt
 from PyQt5.QtGui import QIcon
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
+from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 import audio_gui
 from vk_api import VkApi, exceptions
@@ -162,6 +162,7 @@ class DownloadAudio(QThread):
         self.statusInfo = None
         self.progressBar = None
         self.tracks = None
+        self.albums = []
         self.directory = None
 
     def __del__(self):
@@ -171,15 +172,27 @@ class DownloadAudio(QThread):
         os.chdir(directory)
         n = 0
         for track in track_list:
-            name = '%(artist)s - %(title)s.mp3' % track
-            name = sub(r"[/\"?:|<>*]", '', name)
-            if len(name) > 127:
-                name = name[:126]
-            self.statusInfo.setText('Скачивается {}'.format(name))
-            download(track['link'], out=name, bar=None)
+            self._download(track)
             n += 1
             self.change_progress(n)
+        for album in self.albums:
+            path = './' + album['title']
+            os.mkdir(path)
+            os.chdir(path)
+            for track in album['tracks']:
+                self._download(track)
+                n += 1
+                self.change_progress(n)
+            os.chdir('../')
         return 'Скачивание завершено'
+
+    def _download(self, track):
+        name = '%(artist)s - %(title)s.mp3' % track
+        name = sub(r"[/\"?:|<>*]", '', name)
+        if len(name) > 127:
+            name = name[:126]
+        self.statusInfo.setText('Скачивается {}'.format(name))
+        download(track['link'], out=name, bar=None)
 
     def run(self):
         try:
@@ -343,15 +356,20 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                                     .format(directory))
 
     def download_all(self):
+        length = 0
+        length += len(self.tracks)
+        for album in self.albums:
+            length += len(album['tracks'])
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выберите папку")
         if directory:
             self.download_audio.statusInfo = self.statusInfo
             self.download_audio.tracks = self.tracks
+            self.download_audio.albums = self.albums
             self.download_audio.directory = directory
             self.statusInfo.setText('Процесс скачивания аудиозаписей начался.')
             self.progress_label.setEnabled(True)
             self.progressBar.setEnabled(True)
-            self.progressBar.setMaximum(len(self.tracks))
+            self.progressBar.setMaximum(length)
             self.toggle_buttons(False)
             self.download_audio.start()
 
@@ -364,6 +382,12 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 if element.text(0) in '%(artist)s — %(title)s' % track:
                     selected_tracks.append(track)
                     break
+        for element in selected:
+            for album in self.albums:
+                for track in album['tracks']:
+                    if element.text(0) in '%(artist)s — %(title)s' % track:
+                        selected_tracks.append(track)
+                        break
         if selected_tracks:
             directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выберите папку")
         if directory:
@@ -397,12 +421,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             if self.selected[0].text(0) in '%(artist)s — %(title)s' % track:
                 selected_tracks.append(track)
                 break
-        if not selected_tracks:
-            for album in self.albums:
-                for track in album['tracks']:
-                    if self.selected[0].text(0) in '%(artist)s — %(title)s' % track:
-                        selected_tracks.append(track)
-                        break
+        for album in self.albums:
+            for track in album['tracks']:
+                if self.selected[0].text(0) in '%(artist)s — %(title)s' % track:
+                    selected_tracks.append(track)
+                    break
         local = QUrl(selected_tracks[0]['link'])
         media = QMediaContent(local)
         self.mediaPlayer.setMedia(media)
