@@ -320,6 +320,19 @@
      </property>
     </column>
    </widget>
+   <widget class="QLineEdit" name="search">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>420</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="placeholderText">
+     <string>Поиск...</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

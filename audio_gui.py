@@ -128,6 +128,9 @@ class Ui_MainWindow(object):
         self.trackList.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.trackList.setObjectName("trackList")
         self.trackList.header().setVisible(False)
+        self.search = QtWidgets.QLineEdit(self.centralwidget)
+        self.search.setGeometry(QtCore.QRect(10, 420, 151, 20))
+        self.search.setObjectName("search")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -149,6 +152,7 @@ class Ui_MainWindow(object):
         self.progressBar.setFormat(_translate("MainWindow", "Скачано %v из %m"))
         self.progress_label.setText(_translate("MainWindow", "Прогресс скачивания:"))
         self.trackList.headerItem().setText(0, _translate("MainWindow", "Аудиозаписи"))
+        self.search.setPlaceholderText(_translate("MainWindow", "Поиск..."))
 
 def resource_path(relative_path):
     try:
