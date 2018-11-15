@@ -131,7 +131,7 @@ class GetAudioListThread(QThread):
             self.signal.emit('Требуется логин.')
         except exceptions.PasswordRequired:
             self.signal.emit('Требуется пароль.')
-        except IndexError:
+        except (IndexError, AttributeError):
             self.signal.emit('Невозможно получить список аудиозаписей. Проверьте, открыты ли они у пользователя.')
         except exceptions.ApiError as e:
             if '113' in str(e):
@@ -180,7 +180,7 @@ class DownloadAudio(QThread):
 
     def _download(self, track):
         name = '%(artist)s - %(title)s.mp3' % track
-        name = sub(r"[/\"?:|<>*]", '', name)
+        name = sub(r"[/\"?:|<>*\n\r\xa0]", '', name).strip().replace('\t', ' ')
         if len(name) > 127:
             name = name[:126]
         self.statusInfo.setText('Скачивается {}'.format(name))
