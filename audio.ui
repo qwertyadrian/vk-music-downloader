@@ -32,6 +32,9 @@
    <iconset>
     <normaloff>logo.png</normaloff>logo.png</iconset>
   </property>
+  <property name="styleSheet">
+   <string notr="true"> QPlainTextEdit,QSpinBox,QTimeEdit,QLineEdit {color: rgb(238, 255, 255);}QWidget {background: rgb(33, 33, 33);}QLabel, QCheckBox {color:#e8f9f9;}QPushButton {background-color: rgb(60, 60, 60);border: none;color: rgb(138, 138, 138);}QProgressBar {border: 2px solid grey;border-radius: 5px;}QProgressBar::chunk {background-color: #05B8CC;width: 20px;}QMenuBar {background-color: rgb(33, 33, 33);color: white;}QMenuBar::item {spacing: 3px;padding: 1px 4px;background: transparent;border-radius: 4px;}QMenuBar::item:selected {background: #a8a8a8;}QMenuBar::item:pressed {background: #888888;}QMenu:enabled {color: rgb(238, 255, 255);}QMenu:selected {background: #a8a8a8;}QTreeView {show-decoration-selected: 1;background-color: white;}QTreeView::item {border: 1px solid #d9d9d9;border-top-color: transparent;border-bottom-color: transparent;}QTreeView::branch {background: palette(base);}QTreeView::branch:has-siblings:!adjoins-item {border-image: url(src/vline.png) 0;}QTreeView::branch:has-siblings:adjoins-item {border-image: url(src/branch-more.png) 0;}QTreeView::branch:!has-children:!has-siblings:adjoins-item {border-image: url(src/branch-end.png) 0;}QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings {border-image: none;image: url(src/branch-closed.png);}QTreeView::branch:open:has-children:!has-siblings, QTreeView::branch:open:has-children:has-siblings {border-image: none;image: url(src/branch-open.png);}QStatusBar {color: rgb(238, 255, 255);}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLineEdit" name="login">
     <property name="geometry">

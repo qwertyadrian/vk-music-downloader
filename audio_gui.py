@@ -38,6 +38,7 @@ class Ui_MainWindow(object):
         logo = resource_path("logo.png")
         icon.addPixmap(QtGui.QPixmap(logo), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
+        MainWindow.setStyleSheet(open(resource_path("src/style.css")).read())
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.login = QtWidgets.QLineEdit(self.centralwidget)
