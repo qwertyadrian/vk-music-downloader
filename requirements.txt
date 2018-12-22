@@ -1,4 +1,4 @@
 PyQt5
-vk_api
+vk_api==9.3.2
 bs4
 wget
