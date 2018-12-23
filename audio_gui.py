@@ -45,7 +45,7 @@ class Ui_MainWindow(object):
         self.login.setGeometry(QtCore.QRect(350, 10, 181, 31))
         self.login.setObjectName("login")
         self.login_text = QtWidgets.QLabel(self.centralwidget)
-        self.login_text.setGeometry(QtCore.QRect(60, 10, 291, 31))
+        self.login_text.setGeometry(QtCore.QRect(58, 10, 291, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.login_text.setFont(font)

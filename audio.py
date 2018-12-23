@@ -27,7 +27,6 @@ from audio_app import VkAudioApp
 
 
 def ui():
-    global window
     app = QtWidgets.QApplication(sys.argv)
     window = VkAudioApp(info, config, cookie)
     window.show()
@@ -47,8 +46,8 @@ if __name__ == '__main__':
     if os.path.exists(home):
         if os.path.exists(config):
             with open(config, 'rb') as f:
-                info_crypted = f.read()
-                info = codecs.decode(info_crypted, 'hex').decode().split('|')
+                info_encrypted = f.read()
+                info = codecs.decode(info_encrypted, 'hex').decode().split('|')
     else:
         os.mkdir(home)
     ui()
