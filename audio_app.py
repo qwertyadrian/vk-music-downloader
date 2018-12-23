@@ -19,13 +19,12 @@
 """
 import codecs
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import QSizeF, QUrl, Qt
+from PyQt5.QtCore import QSizeF, QUrl, Qt, QTime
 from PyQt5.QtGui import QIcon
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 import audio_gui
 from audio_threads import DownloadAudio, GetAudioListThread
-from datetime import timedelta
 from random import choice
 
 
@@ -92,14 +91,15 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
 
         video_item = QGraphicsVideoItem()
         self.current_volume = 100
+        self.time = QTime(0, 0, 0, 0)
         video_item.setSize(QSizeF(1, 1))
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.mediaPlayer.setVideoOutput(video_item)
         self.mediaPlayer.stateChanged.connect(lambda x: [self.toggle_buttons(True), self.toggle_fields(True)])
         self.mediaPlayer.positionChanged.connect(lambda x: self.statusBar().showMessage(
-            'Воспроизводится {}: {} / {} Громкость: {}'.format(self.selected[0].text(0), timedelta(milliseconds=x),
-                                                               timedelta(milliseconds=self.mediaPlayer.duration()),
-                                                               self.current_volume)))
+            'Воспроизводится {}: {} / {} Громкость: {}'.format(self.selected[0].text(0), self.time.addMSecs(x).toString(
+                Qt.DefaultLocaleLongDate), self.time.addMSecs(self.mediaPlayer.duration()).toString(
+                Qt.DefaultLocaleLongDate), self.current_volume)))
 
         if info:
             self.login.setText(info[0])

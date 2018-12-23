@@ -69,9 +69,10 @@ class GetAudioListThread(QThread):
             group_id = api_vk.groups.getById(group_id=user_id)[0]
             url = url.format(-int(group_id['id']))
             self.statusInfo.setText('Получение списка аудиозаписей сообщества: {}'.format(group_id['name']))
+            albums = vk_audio.get_albums(-group_id['id'])
+        else:
+            albums = vk_audio.get_albums(id['id'])
         tracks, string = self._get_audio(session, url, me)
-        albums = vk_audio.get_albums(id['id'])
-        # a[:a.find('/audio?act=audio_playlist')] + a[a.rfind('/audio?act=audio_playlist'):]
         for album in albums:
             a = album['url']
             album['url'] = a[:a.find('/audio?act=audio_playlist')] + a[a.rfind('/audio?act=audio_playlist'):]
@@ -97,8 +98,11 @@ class GetAudioListThread(QThread):
                 except Exception:
                     continue
                 if 'audio_api_unavailable' in link:
-                    link = decode_audio_url(link, me['id'])
-                temp.append({'artist': artist.lstrip(), 'title': title, 'duration': duration, 'link': link})
+                    try:
+                        link = decode_audio_url(link, me['id'])
+                    except IndexError:
+                        continue
+                    temp.append({'artist': artist.lstrip(), 'title': title, 'duration': duration, 'link': link})
             if len(temp) < 6:
                 tracks = temp.copy()
             else:
@@ -141,8 +145,7 @@ class GetAudioListThread(QThread):
             else:
                 self.signal.emit(str(e))
         except Exception as e:
-            print(type(e))
-            self.signal.emit(str(e))
+            self.signal.emit(str(type(e)) + str(e))
 
 
 class DownloadAudio(QThread):
