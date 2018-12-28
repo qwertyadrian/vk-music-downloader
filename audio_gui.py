@@ -35,7 +35,7 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QtCore.QSize(780, 490))
         MainWindow.setMaximumSize(QtCore.QSize(780, 490))
         icon = QtGui.QIcon()
-        logo = resource_path("logo.png")
+        logo = resource_path("src/logo.ico")
         icon.addPixmap(QtGui.QPixmap(logo), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setStyleSheet(open(resource_path("src/style.css")).read())

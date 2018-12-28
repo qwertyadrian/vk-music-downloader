@@ -37,7 +37,7 @@ if __name__ == '__main__':
     info = None
     user = ''
     if os.name == 'posix':
-        user = ''
+        pass
     elif os.name == 'nt':
         user = getpass.getuser()
     home = os.path.join(os.path.expanduser('~' + user), '.vk_downloader')
