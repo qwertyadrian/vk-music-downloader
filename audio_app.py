@@ -18,6 +18,7 @@
   along with this program. If not, see http://www.gnu.org/licenses/
 """
 import codecs
+import os.path
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QSizeF, QUrl, Qt, QTime
 from PyQt5.QtGui import QIcon
@@ -105,6 +106,12 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.login.setText(info[0])
             self.password.setText(info[1])
             self.user_link.setText(info[2])
+
+        if ('\\Temp\\' or '/tmp/') in (cookie or config):
+            message = 'Не удалось создать папку для хранения настроек приложения по пути\n{}\n\n' \
+                      'Была создана временная папка. После закрытия приложения она будет удалена. ' \
+                      'В следствии этого, сохранение введенных данных работать не будет.'.format(os.path.dirname(cookie))
+            QtWidgets.QMessageBox.warning(self, 'Предупреждение', message)
 
         self.hidden_tracks = []
         self.selected = None

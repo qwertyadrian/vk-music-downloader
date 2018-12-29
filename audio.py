@@ -22,6 +22,7 @@ import sys
 import os.path
 import getpass
 import codecs
+import tempfile
 from PyQt5 import QtWidgets
 from audio_app import VkAudioApp
 
@@ -41,6 +42,8 @@ if __name__ == '__main__':
     elif os.name == 'nt':
         user = getpass.getuser()
     home = os.path.join(os.path.expanduser('~' + user), '.vk_downloader')
+    if not os.path.exists(os.path.join(os.path.expanduser('~' + user))):
+        home = tempfile.TemporaryDirectory()
     config = os.path.join(home, '.config.ini')
     cookie = os.path.join(home, 'vk_cookies.json')
     if os.path.exists(home):
