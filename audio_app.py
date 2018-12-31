@@ -37,6 +37,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.statusBar()
 
         self.config = config
+        self.start_dir = os.getcwd()
+        os.chdir(audio_gui.resource_path('.'))
 
         self.btnConfirm.clicked.connect(self.start)
         self.search.textChanged.connect(self.search_tracks)
@@ -176,6 +178,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                                     '</span></p></body></html>'.format(result))
 
     def save_all(self):
+        os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить как', filter='Text files (*.txt)')[0]
         if not directory.endswith('.txt'):
             directory += '.txt'
@@ -187,6 +190,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.statusInfo.setText('Список аудиозаписей сохранен в файл {}'.format(directory))
 
     def save_without_links(self):
+        os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить как', filter='Text files (*.txt)')[0]
         if not directory.endswith('.txt'):
             directory += '.txt'
@@ -199,6 +203,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 'Список аудиозаписей (без ссылок на скачивание) сохранен в файл {}'.format(directory))
 
     def download_all(self):
+        os.chdir(self.start_dir)
         length = 0
         length += len(self.tracks)
         for album in self.albums:
@@ -217,6 +222,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.download_audio.start()
 
     def download_selected(self):
+        os.chdir(self.start_dir)
         directory = None
         selected = self.trackList.selectedItems()
         selected_tracks = []
