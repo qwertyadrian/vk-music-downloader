@@ -113,3 +113,15 @@ QCheckBox::indicator:unchecked:hover {
 QCheckBox::indicator:checked {
     image: url(src/checked.png);
 }
+
+QScrollBar {
+    background: rgb(69, 69, 69);
+}
+
+QScrollBar::down-arrow {
+    image: url(src/branch-open.png);
+}
+
+QScrollBar:up-arrow {
+    image: url(src/branch-open-180.png);
+}
