@@ -41,35 +41,40 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.btnConfirm.clicked.connect(self.start)
         self.search.textChanged.connect(self.search_tracks)
 
-        self.saveAll = QtWidgets.QAction(QIcon('save_all.png'), '&Сохранить', self)
+        self.saveAll = QtWidgets.QAction(QIcon('src/save_all.png'), '&Сохранить', self)
         self.saveAll.setStatusTip('Сохранить список аудиозаписей в файл со ссылками для их скачивания')
         self.saveAll.setShortcut('Ctrl+S')
         self.saveAll.setEnabled(False)
         self.saveAll.triggered.connect(self.save_all)
 
-        self.saveWithoutLinks = QtWidgets.QAction(QIcon('save_without_links.png'), '&Сохранить без ссылок', self)
+        self.saveWithoutLinks = QtWidgets.QAction(QIcon('src/save_without_links.png'), '&Сохранить без ссылок', self)
         self.saveWithoutLinks.setStatusTip('Сохранить список аудиозаписей в файл без ссылок для их скачивания')
         self.saveWithoutLinks.setShortcut('Ctrl+Shift+S')
         self.saveWithoutLinks.setEnabled(False)
         self.saveWithoutLinks.triggered.connect(self.save_without_links)
 
-        self.downloadAll = QtWidgets.QAction(QIcon('download_all.png'), '&Скачать всё', self)
+        self.downloadAll = QtWidgets.QAction(QIcon('src/download_all.png'), '&Скачать всё', self)
         self.downloadAll.setStatusTip('Скачать все аудиозаписи из списка ниже')
         self.downloadAll.setShortcut('Ctrl+D')
         self.downloadAll.setEnabled(False)
         self.downloadAll.triggered.connect(self.download_all)
 
-        self.downloadSelected = QtWidgets.QAction(QIcon('download_selected.png'), '&Скачать выбранное', self)
+        self.downloadSelected = QtWidgets.QAction(QIcon('src/download_selected.png'), '&Скачать выбранное', self)
         self.downloadSelected.setStatusTip('Скачать выбранные ауиозаписи из списка ниже')
         self.downloadSelected.setShortcut('Ctrl+Shift+D')
         self.downloadSelected.setEnabled(False)
         self.downloadSelected.triggered.connect(self.download_selected)
 
-        self.luckyMe = QtWidgets.QAction(QIcon('lucky_me.png'), '&Мне повёзет', self)
+        self.luckyMe = QtWidgets.QAction(QIcon('src/lucky_me.png'), '&Мне повёзет', self)
         self.luckyMe.setStatusTip('Воспроизвести случайную аудиозапись из списка')
         self.luckyMe.setShortcut('Ctrl+L')
         self.luckyMe.setEnabled(False)
         self.luckyMe.triggered.connect(self.play_track)
+
+        self.help = QtWidgets.QAction(QIcon('src/help.png'), '&Помощь', self)
+        self.help.setStatusTip('Помощь по программе')
+        self.help.setShortcut('Ctrl+H')
+        self.help.triggered.connect(self._help)
 
         menu_bar = self.menuBar()
         music_menu = menu_bar.addMenu('&Музыка')
@@ -78,6 +83,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         music_menu.addAction(self.downloadAll)
         music_menu.addAction(self.downloadSelected)
         music_menu.addAction(self.luckyMe)
+
+        help_menu = menu_bar.addMenu('&Помощь')
+        help_menu.addAction(self.help)
 
         self.trackList.itemDoubleClicked.connect(self.play_track)
         self.trackList.itemExpanded.connect(self.on_item_expanded)
@@ -340,3 +348,6 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.trackList.setEnabled(state)
         self.saveData.setEnabled(state)
         self.search.setEnabled(state)
+
+    def _help(self):
+        QtWidgets.QMessageBox.information(self, 'Помощь', open('src/help.html', encoding='utf-8').read())
