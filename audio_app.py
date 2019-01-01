@@ -180,6 +180,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def save_all(self):
         os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить как', filter='Text files (*.txt)')[0]
+        if not directory:
+            return None
         if not directory.endswith('.txt'):
             directory += '.txt'
         if directory and self.tracks and self.string:
@@ -192,6 +194,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def save_without_links(self):
         os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить как', filter='Text files (*.txt)')[0]
+        if not directory:
+            return None
         if not directory.endswith('.txt'):
             directory += '.txt'
         if directory and self.tracks and self.string:
