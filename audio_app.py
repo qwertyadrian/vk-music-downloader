@@ -1,32 +1,33 @@
 # -*- coding: utf-8 -*-
-"""
-  Copyright (C) 2018 Adrian Polyakov
 
-  This file is part of VkMusic Downloader
-
-  VkMusic Downloader free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program. If not, see http://www.gnu.org/licenses/
-"""
+#  Copyright (C) 2019 Adrian Polyakov
+#
+#  This file is part of VkMusic Downloader
+#
+#  VkMusic Downloader is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program. If not, see http://www.gnu.org/licenses/
 import codecs
 import os.path
+from random import choice
+
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QSizeF, QUrl, Qt, QTime
 from PyQt5.QtGui import QIcon
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
+
 import audio_gui
 from audio_threads import DownloadAudio, GetAudioListThread
-from random import choice
 
 
 # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
@@ -43,51 +44,38 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.btnConfirm.clicked.connect(self.start)
         self.search.textChanged.connect(self.search_tracks)
 
-        self.saveAll = QtWidgets.QAction(QIcon('src/save_all.png'), '&Сохранить', self)
-        self.saveAll.setStatusTip('Сохранить список аудиозаписей в файл со ссылками для их скачивания')
-        self.saveAll.setShortcut('Ctrl+S')
-        self.saveAll.setEnabled(False)
-        self.saveAll.triggered.connect(self.save_all)
-
-        self.saveWithoutLinks = QtWidgets.QAction(QIcon('src/save_without_links.png'), '&Сохранить без ссылок', self)
-        self.saveWithoutLinks.setStatusTip('Сохранить список аудиозаписей в файл без ссылок для их скачивания')
-        self.saveWithoutLinks.setShortcut('Ctrl+Shift+S')
-        self.saveWithoutLinks.setEnabled(False)
-        self.saveWithoutLinks.triggered.connect(self.save_without_links)
-
-        self.downloadAll = QtWidgets.QAction(QIcon('src/download_all.png'), '&Скачать всё', self)
-        self.downloadAll.setStatusTip('Скачать все аудиозаписи из списка ниже')
-        self.downloadAll.setShortcut('Ctrl+D')
-        self.downloadAll.setEnabled(False)
-        self.downloadAll.triggered.connect(self.download_all)
-
-        self.downloadSelected = QtWidgets.QAction(QIcon('src/download_selected.png'), '&Скачать выбранное', self)
-        self.downloadSelected.setStatusTip('Скачать выбранные ауиозаписи из списка ниже')
-        self.downloadSelected.setShortcut('Ctrl+Shift+D')
-        self.downloadSelected.setEnabled(False)
-        self.downloadSelected.triggered.connect(self.download_selected)
-
-        self.luckyMe = QtWidgets.QAction(QIcon('src/lucky_me.png'), '&Мне повёзет', self)
-        self.luckyMe.setStatusTip('Воспроизвести случайную аудиозапись из списка')
-        self.luckyMe.setShortcut('Ctrl+L')
-        self.luckyMe.setEnabled(False)
-        self.luckyMe.triggered.connect(self.play_track)
-
-        self.help = QtWidgets.QAction(QIcon('src/help.png'), '&Помощь', self)
-        self.help.setStatusTip('Помощь по программе')
-        self.help.setShortcut('Ctrl+H')
-        self.help.triggered.connect(self._help)
+        self.saveAll = self._add_action('src/save_all.png', '&Сохранить',
+                                        'Сохранить список аудиозаписей в файл со ссылками для их скачивания',
+                                        'Ctrl+S', False, self.save_all)
+        self.saveWithoutLinks = self._add_action('src/save_without_links.png', '&Сохранить без ссылок',
+                                                 'Сохранить список аудиозаписей в файл без ссылок для их скачивания',
+                                                 'Ctrl+Shift+S', False, self.save_without_links)
+        self.downloadAll = self._add_action('src/download_all.png', '&Скачать всё',
+                                            'Скачать все аудиозаписи из списка ниже', 'Ctrl+D', False,
+                                            self.download_all)
+        self.downloadSelected = self._add_action('src/download_selected.png', '&Скачать выбранное',
+                                                 'Скачать выбранные ауиозаписи из списка ниже', 'Ctrl+Shift+D', False,
+                                                 self.download_selected)
+        self.luckyMe = self._add_action('src/lucky_me.png', '&Мне повёзет',
+                                        'Воспроизвести случайную аудиозапись из списка', 'Ctrl+L', False,
+                                        self.play_track)
 
         menu_bar = self.menuBar()
         music_menu = menu_bar.addMenu('&Музыка')
         music_menu.addAction(self.saveAll)
         music_menu.addAction(self.saveWithoutLinks)
+        music_menu.addSeparator()
         music_menu.addAction(self.downloadAll)
         music_menu.addAction(self.downloadSelected)
+        music_menu.addSeparator()
         music_menu.addAction(self.luckyMe)
 
         help_menu = menu_bar.addMenu('&Помощь')
-        help_menu.addAction(self.help)
+        help_menu.addAction(self._add_action('src/help.png', '&Помощь', 'Помощь по программе', 'Ctrl+H',
+                                             callback=self._help))
+        help_menu.addSeparator()
+        help_menu.addAction(self._add_action('src/about.png', '&О программе','Показать информацию о VkMusic Downloader',
+                                             callback=self._about))
 
         self.trackList.itemDoubleClicked.connect(self.play_track)
         self.trackList.itemExpanded.connect(self.on_item_expanded)
@@ -120,7 +108,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if ('\\Temp\\' or '/tmp/') in (cookie or config):
             message = 'Не удалось создать папку для хранения настроек приложения по пути\n{}\n\n' \
                       'Была создана временная папка. После закрытия приложения она будет удалена. ' \
-                      'В следствии этого, сохранение введенных данных работать не будет.'.format(os.path.dirname(cookie))
+                      'В следствии этого, сохранение введенных данных работать не будет'.format(os.path.dirname(cookie))
             QtWidgets.QMessageBox.warning(self, 'Предупреждение', message)
 
         self.hidden_tracks = []
@@ -180,11 +168,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def save_all(self):
         os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить как', filter='Text files (*.txt)')[0]
-        if not directory:
-            return None
-        if not directory.endswith('.txt'):
-            directory += '.txt'
         if directory and self.tracks and self.string:
+            if not directory.endswith('.txt'):
+                directory += '.txt'
             with open(directory, 'w', encoding='utf-8') as d:
                 print('{}, {} шт.\n'.format(self.string, len(self.tracks)), file=d)
                 for track in self.tracks:
@@ -194,11 +180,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def save_without_links(self):
         os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить как', filter='Text files (*.txt)')[0]
-        if not directory:
-            return None
-        if not directory.endswith('.txt'):
-            directory += '.txt'
         if directory and self.tracks and self.string:
+            if not directory.endswith('.txt'):
+                directory += '.txt'
             with open(directory, 'w', encoding='utf-8') as d:
                 print('{}, {} шт.\n'.format(self.string, len(self.tracks)), file=d)
                 for track in self.tracks:
@@ -361,3 +345,17 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
 
     def _help(self):
         QtWidgets.QMessageBox.information(self, 'Помощь', open('src/help.html', encoding='utf-8').read())
+
+    def _about(self):
+        QtWidgets.QMessageBox.information(self, 'О программе', open('src/about.html', encoding='utf-8').read())
+
+    def _add_action(self, icon_path, text, status_tip=None, shortcut=None, set_enabled=None, callback=None):
+        action = QtWidgets.QAction(QIcon(icon_path), text, self)
+        if status_tip:
+            action.setStatusTip(status_tip)
+        if shortcut:
+            action.setShortcut(shortcut)
+        if set_enabled is not None:
+            action.setEnabled(set_enabled)
+        action.triggered.connect(callback)
+        return action
