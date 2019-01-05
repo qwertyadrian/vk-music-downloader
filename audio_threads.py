@@ -163,10 +163,10 @@ class DownloadAudio(QThread):
     def __del__(self):
         self.wait()
 
-    def _download_audio(self, track_list, directory):
-        os.chdir(directory)
+    def _download_audio(self):
+        os.chdir(self.directory)
         n = 0
-        for track in track_list:
+        for track in self.tracks:
             self._download(track)
             n += 1
             self.change_progress(n)
@@ -191,7 +191,7 @@ class DownloadAudio(QThread):
 
     def run(self):
         try:
-            result = self._download_audio(self.tracks, self.directory)
+            result = self._download_audio()
             self.signal.emit(result)
         except Exception as e:
             self.signal.emit(e)
