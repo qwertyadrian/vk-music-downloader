@@ -269,7 +269,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 self.toggle_fields(True)
                 self.toggle_buttons(True)
             self.mediaPlayer.stop()
-        elif e.key() == Qt.Key_Control:
+        elif e.key() == Qt.Key_Delete:
             self.trackList.clearSelection()
         elif e.key() == Qt.Key_Up:
             if self.current_volume < 100:
