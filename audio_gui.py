@@ -124,6 +124,7 @@ class Ui_MainWindow(object):
         self.trackList = QtWidgets.QTreeWidget(self.centralwidget)
         self.trackList.setEnabled(False)
         self.trackList.setGeometry(QtCore.QRect(10, 200, 761, 211))
+        self.trackList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.trackList.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.trackList.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.trackList.setObjectName("trackList")
