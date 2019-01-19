@@ -44,6 +44,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.start_dir = os.getcwd()
         self.clipboard = clipboard
         self.system_tray = qt.QSystemTrayIcon(QIcon('src/logo.ico'), self)
+        self.system_tray.messageClicked.connect(self._maximize_window)
+        self.system_tray.activated.connect(self._maximize_window)
         self.system_tray.show()
         os.chdir(audio_gui.resource_path('.'))
 
@@ -389,3 +391,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
 
     def _show_context_menu(self, point):
         self.context_menu.exec(self.trackList.mapToGlobal(point))
+
+    def _maximize_window(self):
+        self.raise_()
+        self.activateWindow()
+        self.showMaximized()
+        self.showNormal()
