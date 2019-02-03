@@ -43,14 +43,20 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.config = config
         self.start_dir = os.getcwd()
         self.clipboard = clipboard
-        self.system_tray = qt.QSystemTrayIcon(QIcon('src/logo.ico'), self)
-        self.system_tray.messageClicked.connect(self._maximize_window)
-        self.system_tray.activated.connect(self._maximize_window)
-        self.system_tray.show()
+        try:
+            self.system_tray = qt.QSystemTrayIcon(QIcon('src/logo.ico'), self)
+            self.system_tray.messageClicked.connect(self._maximize_window)
+            self.system_tray.activated.connect(self._maximize_window)
+            self.system_tray.show()
+        except AttributeError:
+            self.system_tray = None
         os.chdir(audio_gui.resource_path('.'))
 
         self.btnConfirm.clicked.connect(self.get_audio_list)
         self.search.textChanged.connect(self.search_tracks)
+
+        self.volumeSlider.sliderMoved.connect(self.change_volume)
+        self.volumeSlider.valueChanged.connect(self.change_volume)
 
         self.saveAll = self._create_action('src/save_all.png', '&Сохранить',
                                            'Сохранить список аудиозаписей в файл со ссылками для их скачивания',
@@ -59,8 +65,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                                                     'Сохранить список аудиозаписей в файл без ссылок для их скачивания',
                                                     'Ctrl+Shift+S', False, self.save_without_links)
         self.download = self._create_action('src/download.png', '&Скачать',
-                                            'Скачать выбранные ауиозаписи из списка ниже или всё, '
-                                            'если ничего не выбрано', 'Ctrl+Shift+D', False, self.download_audio_dialog)
+                                            'Скачать выбранные ауиозаписи или всё, если ничего не выбрано', False,
+                                            callback=self.download_audio_dialog)
         self.luckyMe = self._create_action('src/lucky_me.png', '&Мне повёзет',
                                            'Воспроизвести случайную аудиозапись из списка', 'Ctrl+L', False,
                                            self.play_track)
@@ -74,16 +80,16 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                                                  callback=self.copy_track_link)
         self.playTrack = self._create_action('src/play.png', '&Воспроизвести', 'Воспроизвести вудиозапись',
                                              callback=self.play_track)
-        self.downloadTrack = self._create_action('src/download.png', '&Скачать',
-                                                 'Скачать выбранные ауиозаписи из списка ниже или всё, '
-                                                 'если ничего не выбрано', callback=self.download_audio_dialog)
+        self.downloadAllTracks = self._create_action('src/download_all.png', '&Скачать всё',
+                                                     'Скачать все аудиозаписи пользователя', 'Ctrl+D',  False,
+                                                     self.download_all_tracks)
         # Generating Menu Bar
         menu_bar = self.menuBar()
         music_menu = menu_bar.addMenu('&Музыка')
         music_menu.addAction(self.saveAll)
         music_menu.addAction(self.saveWithoutLinks)
         music_menu.addSeparator()
-        music_menu.addAction(self.download)
+        music_menu.addAction(self.downloadAllTracks)
         music_menu.addSeparator()
         music_menu.addAction(self.luckyMe)
 
@@ -94,7 +100,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
 
         self.context_menu = QtWidgets.QMenu(self)
         self.context_menu.addAction(self.playTrack)
-        self.context_menu.addAction(self.downloadTrack)
+        self.context_menu.addAction(self.download)
         self.context_menu.addSeparator()
         self.context_menu.addAction(self.copyTrackLink)
 
@@ -152,6 +158,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.get_audio_thread.user_link = self.user_link.text()
         self.get_audio_thread.statusInfo = self.statusInfo
         self.toggle_buttons(False)
+        self.btnConfirm.setEnabled(False)
         self.trackList.clear()
         self.statusInfo.setText('Процесс получение аудиозаписей начался.\n')
         self.get_audio_thread.start()
@@ -162,10 +169,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.statusInfo.setText('Список аудиозаписей получен.'
                                     ' Зажмите Ctrl для множественного выбора'
                                     '\n{}, {} шт.'.format(self.string, len(self.tracks)))
-            self.system_tray.showMessage(self.__title__, 'Список аудиозаписей получен')
+            if self.system_tray:
+                self.system_tray.showMessage(self.__title__, 'Список аудиозаписей получен')
             self.trackList.setEnabled(True)
             self.toggle_buttons(True)
-            self.luckyMe.setEnabled(True)
+            self.btnConfirm.setEnabled(True)
             for track in self.tracks:
                 self.trackList.addTopLevelItem(
                     QtWidgets.QTreeWidgetItem(self.trackList, ['%(artist)s — %(title)s' % track, '%(link)s' % track])
@@ -177,8 +185,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 self.trackList.addTopLevelItem(root)
 
         elif isinstance(result, str):
-            self.system_tray.showMessage(self.__title__, 'Во время получения аудиозаписей произошла ошибка',
-                                         qt.QSystemTrayIcon.Critical)
+            if self.system_tray:
+                self.system_tray.showMessage(self.__title__, 'Во время получения аудиозаписей произошла ошибка',
+                                             qt.QSystemTrayIcon.Critical)
             self.btnConfirm.setEnabled(True)
             self.statusInfo.setText('<html><head/><body><p><span style=" color:#ff0000;">Ошибка: {}'
                                     '</span></p></body></html>'.format(result))
@@ -230,18 +239,24 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.progress_label.setEnabled(True)
             self.progressBar.setEnabled(True)
             self.progressBar.setMaximum(length)
-            self.toggle_buttons(False)
+            self.downloadAllTracks.setEnabled(False)
             self.download_audio_thread.start()
         os.chdir(audio_gui.resource_path('.'))
+
+    def download_all_tracks(self):
+        self.trackList.clearSelection()
+        self.download_audio_dialog()
 
     def download_finished(self, result):
         self.toggle_buttons(True)
         if isinstance(result, str):
             self.statusInfo.setText(result)
-            self.system_tray.showMessage(self.__title__, 'Скачивание аудиозаписей завершено')
+            if self.system_tray:
+                self.system_tray.showMessage(self.__title__, 'Скачивание аудиозаписей завершено')
         else:
-            self.system_tray.showMessage(self.__title__, 'Во время скачивания аудиозаписей произошла ошибка',
-                                         qt.QSystemTrayIcon.Critical)
+            if self.system_tray:
+                self.system_tray.showMessage(self.__title__, 'Во время скачивания аудиозаписей произошла ошибка',
+                                             qt.QSystemTrayIcon.Critical)
             self.statusInfo.setText('<html><head/><body><p><span style=" color:#ff0000;">При скачивании'
                                     ' произошла ошибка: {}'
                                     '</span></p></body></html>'.format(result))
@@ -263,7 +278,6 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.mediaPlayer.setMedia(media)
         self.mediaPlayer.play()
         self.toggle_fields(False)
-        self.btnConfirm.setEnabled(False)
         self.trackList.clearSelection()
 
     def search_tracks(self, query=None):
@@ -283,6 +297,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         selected_tracks = self._get_selected_tracks(selected)
         if selected_tracks:
             self.clipboard.setText(selected_tracks[0]['link'])
+
+    def change_volume(self, level):
+        self.current_volume = level
+        self.mediaPlayer.setVolume(self.current_volume)
+        self.statusBar().showMessage('Текущая громкость: {}'.format(self.current_volume))
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Alt:
@@ -306,13 +325,13 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             if self.mediaPlayer.state() == 1:
                 self.mediaPlayer.pause()
                 self.toggle_fields(False)
-                self.toggle_buttons(False)
-                self.download.setEnabled(True)
+                if not self.download_audio_thread.isRunning():
+                    self.downloadAllTracks.setEnabled(True)
             elif self.mediaPlayer.state() == 2:
                 self.mediaPlayer.play()
                 self.toggle_fields(False)
-                self.toggle_buttons(False)
-                self.download.setEnabled(True)
+                if not self.download_audio_thread.isRunning():
+                    self.downloadAllTracks.setEnabled(True)
         elif e.key() == Qt.Key_Left:
             self.mediaPlayer.setPosition(self.mediaPlayer.position() - 2000)
         elif e.key() == Qt.Key_Right:
@@ -334,8 +353,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def toggle_buttons(self, state: bool):
         self.saveAll.setEnabled(state)
         self.saveWithoutLinks.setEnabled(state)
-        self.download.setEnabled(state)
-        self.btnConfirm.setEnabled(state)
+        if not self.download_audio_thread.isRunning():
+            self.downloadAllTracks.setEnabled(state)
         self.luckyMe.setEnabled(state)
 
     def toggle_fields(self, state: bool):
@@ -345,6 +364,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.trackList.setEnabled(state)
         self.saveData.setEnabled(state)
         self.search.setEnabled(state)
+        self.btnConfirm.setEnabled(state)
 
     def auth_handler(self, result):
         self.key = None
@@ -390,6 +410,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         return selected_tracks
 
     def _show_context_menu(self, point):
+        if self.download_audio_thread.isRunning():
+            self.download.setEnabled(False)
         self.context_menu.exec(self.trackList.mapToGlobal(point))
 
     def _maximize_window(self):

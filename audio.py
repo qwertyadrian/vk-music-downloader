@@ -18,7 +18,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
 import codecs
-import getpass
 import os.path
 import sys
 import tempfile
@@ -35,14 +34,8 @@ def ui():
 
 
 if __name__ == '__main__':
-    info = None
-    user = ''
-    if os.name == 'posix':
-        pass
-    elif os.name == 'nt':
-        user = getpass.getuser()
-    home = os.path.join(os.path.expanduser('~' + user), '.vk_downloader')
-    if not os.path.exists(os.path.join(os.path.expanduser('~' + user))):
+    home = os.path.join(os.path.expanduser('~'), '.vk_downloader')
+    if not os.path.exists(os.path.dirname(home)):
         home = tempfile.TemporaryDirectory()
     config = os.path.join(home, '.config.ini')
     cookie = os.path.join(home, 'vk_cookies.json')
