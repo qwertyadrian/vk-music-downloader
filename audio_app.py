@@ -58,6 +58,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.volumeSlider.sliderMoved.connect(self.change_volume)
         self.volumeSlider.valueChanged.connect(self.change_volume)
 
+        self.play_status.sliderMoved.connect(self.change_position)
+
+        self.pause_button.clicked.connect(self._pause)
+        self.stop_button.clicked.connect(self._stop)
+
         self.saveAll = self._create_action('src/save_all.png', '&Сохранить',
                                            'Сохранить список аудиозаписей в файл со ссылками для их скачивания',
                                            'Ctrl+S', False, self.save_all)
@@ -123,10 +128,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
         self.mediaPlayer.setVideoOutput(video_item)
         self.mediaPlayer.stateChanged.connect(lambda x: [self.toggle_buttons(True), self.toggle_fields(True)])
-        self.mediaPlayer.positionChanged.connect(lambda x: self.statusBar().showMessage(
-            'Воспроизводится {}: {} / {} Громкость: {}'.format(self.selected[0].text(0), self.time.addMSecs(x).toString(
-                Qt.DefaultLocaleLongDate), self.time.addMSecs(self.mediaPlayer.duration()).toString(
-                Qt.DefaultLocaleLongDate), self.current_volume)))
+        self.mediaPlayer.positionChanged.connect(self._position_changed)
 
         if info:
             self.login.setText(info[0])
@@ -303,44 +305,12 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.mediaPlayer.setVolume(self.current_volume)
         self.statusBar().showMessage('Текущая громкость: {}'.format(self.current_volume))
 
+    def change_position(self, pos):
+        self.mediaPlayer.setPosition(pos)
+
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Alt:
-            if self.mediaPlayer.state():
-                self.toggle_fields(True)
-                self.toggle_buttons(True)
-            self.mediaPlayer.stop()
-        elif e.key() == Qt.Key_Delete:
+        if e.key() == Qt.Key_Delete:
             self.trackList.clearSelection()
-        elif e.key() == Qt.Key_Up:
-            if self.current_volume < 100:
-                self.current_volume += 2
-                self.mediaPlayer.setVolume(self.current_volume)
-            self.statusBar().showMessage('Текущая громкость: {}'.format(self.current_volume))
-        elif e.key() == Qt.Key_Down:
-            if self.current_volume > 0:
-                self.current_volume -= 2
-                self.mediaPlayer.setVolume(self.current_volume)
-            self.statusBar().showMessage('Текущая громкость: {}'.format(self.current_volume))
-        elif e.key() == Qt.Key_Space:
-            if self.mediaPlayer.state() == 1:
-                self.mediaPlayer.pause()
-                self.toggle_fields(False)
-                if not self.download_audio_thread.isRunning():
-                    self.downloadAllTracks.setEnabled(True)
-            elif self.mediaPlayer.state() == 2:
-                self.mediaPlayer.play()
-                self.toggle_fields(False)
-                if not self.download_audio_thread.isRunning():
-                    self.downloadAllTracks.setEnabled(True)
-        elif e.key() == Qt.Key_Left:
-            self.mediaPlayer.setPosition(self.mediaPlayer.position() - 2000)
-        elif e.key() == Qt.Key_Right:
-            self.mediaPlayer.setPosition(self.mediaPlayer.position() + 2000)
-        elif e.key() == Qt.Key_Escape:
-            key = QtWidgets.QMessageBox.question(self, 'Выход', 'Вы действительно хотите выйти из программы?\n'
-                                                                'Для выхода нажмите Enter. Для отмены - Esc')
-            if key == QtWidgets.QMessageBox.Yes:
-                exit(0)
 
     def on_item_expanded(self, item):
         if item.childCount():
@@ -408,6 +378,35 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                         selected_tracks.append(track)
                         break
         return selected_tracks
+
+    def _pause(self):
+        if self.mediaPlayer.state() == 1:
+            self.mediaPlayer.pause()
+            self.toggle_fields(False)
+            if not self.download_audio_thread.isRunning():
+                self.downloadAllTracks.setEnabled(True)
+            self.pause_button.setStyleSheet("border-radius:15px;image:url(src/play_button.png);")
+        elif self.mediaPlayer.state() == 2:
+            self.mediaPlayer.play()
+            self.toggle_fields(False)
+            if not self.download_audio_thread.isRunning():
+                self.downloadAllTracks.setEnabled(True)
+            self.pause_button.setStyleSheet("border-radius:15px;image:url(src/pause_button.png);")
+
+    def _stop(self):
+        if self.mediaPlayer.state():
+            self.toggle_fields(True)
+            self.toggle_buttons(True)
+        self.mediaPlayer.stop()
+
+    def _position_changed(self, x):
+        self.statusBar().showMessage(
+            'Воспроизводится {}: {} / {} Громкость: {}'.format(self.selected[0].text(0),
+                                                               self.time.addMSecs(x).toString(Qt.DefaultLocaleLongDate),
+                                                               self.time.addMSecs(self.mediaPlayer.duration()).toString(
+                                                                   Qt.DefaultLocaleLongDate), self.current_volume))
+        self.play_status.setValue(x)
+        self.play_status.setMaximum(self.mediaPlayer.duration())
 
     def _show_context_menu(self, point):
         if self.download_audio_thread.isRunning():
