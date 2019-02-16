@@ -27,8 +27,7 @@ from audio_app import VkAudioApp
 
 def ui():
     app = QtWidgets.QApplication(sys.argv)
-    clipboard = app.clipboard()
-    window = VkAudioApp(info, config, cookie, clipboard)
+    window = VkAudioApp(info, config, cookie)
     window.show()
     app.exec_()
 

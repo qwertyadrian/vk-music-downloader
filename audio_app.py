@@ -22,7 +22,7 @@ from random import choice
 
 from PyQt5 import QtWidgets
 from PyQt5 import Qt as qt
-from PyQt5.QtCore import QSizeF, QUrl, Qt, QTime
+from PyQt5.QtCore import QSizeF, QUrl, Qt, QTime, pyqtSlot
 from PyQt5.QtGui import QIcon
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
@@ -33,7 +33,7 @@ from audio_threads import DownloadAudio, GetAudioListThread
 
 # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
 class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
-    def __init__(self, info, config, cookie, clipboard):
+    def __init__(self, info, config, cookie):
         super().__init__()
         self.setupUi(self)
         self.statusBar()
@@ -42,7 +42,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
 
         self.config = config
         self.start_dir = os.getcwd()
-        self.clipboard = clipboard
+        self.clipboard = QtWidgets.qApp.clipboard()
         try:
             self.system_tray = qt.QSystemTrayIcon(QIcon('src/logo.ico'), self)
             self.system_tray.messageClicked.connect(self._maximize_window)
@@ -88,6 +88,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.downloadAllTracks = self._create_action('src/download_all.png', '&Скачать всё',
                                                      'Скачать все аудиозаписи пользователя', 'Ctrl+D',  False,
                                                      self.download_all_tracks)
+        self.exit = self._create_action('src/exit.png', '&Выход', 'Выйти из VkMusic Downloader', 'Ctrl+Q',
+                                        callback=QtWidgets.qApp.exit)
         # Generating Menu Bar
         menu_bar = self.menuBar()
         music_menu = menu_bar.addMenu('&Музыка')
@@ -97,6 +99,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         music_menu.addAction(self.downloadAllTracks)
         music_menu.addSeparator()
         music_menu.addAction(self.luckyMe)
+        music_menu.addSeparator()
+        music_menu.addAction(self.exit)
 
         help_menu = menu_bar.addMenu('&Помощь')
         help_menu.addAction(self.helpDialog)
@@ -148,6 +152,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.albums = None
         self.key = None
 
+    @pyqtSlot()
     def get_audio_list(self):
         self.hidden_tracks.clear()
         if self.saveData.isChecked():
@@ -165,6 +170,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.statusInfo.setText('Процесс получение аудиозаписей начался.\n')
         self.get_audio_thread.start()
 
+    @pyqtSlot('PyQt_PyObject')
     def audio_list_received(self, result):
         if result and isinstance(result, tuple):
             self.tracks, self.string, self.albums = result
@@ -194,6 +200,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.statusInfo.setText('<html><head/><body><p><span style=" color:#ff0000;">Ошибка: {}'
                                     '</span></p></body></html>'.format(result))
 
+    @pyqtSlot()
     def save_all(self):
         os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить всё', self.string, 'Text files (*.txt)')[0]
@@ -207,6 +214,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.statusInfo.setText('Список аудиозаписей сохранен в файл {}'.format(directory))
         os.chdir(audio_gui.resource_path('.'))
 
+    @pyqtSlot()
     def save_without_links(self):
         os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(self, 'Сохранить без ссылок', self.string,
@@ -222,6 +230,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 'Список аудиозаписей (без ссылок на скачивание) сохранен в файл {}'.format(directory))
         os.chdir(audio_gui.resource_path('.'))
 
+    @pyqtSlot()
     def download_audio_dialog(self):
         os.chdir(self.start_dir)
         selected = self.trackList.selectedItems()
@@ -245,10 +254,12 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.download_audio_thread.start()
         os.chdir(audio_gui.resource_path('.'))
 
+    @pyqtSlot()
     def download_all_tracks(self):
         self.trackList.clearSelection()
         self.download_audio_dialog()
 
+    @pyqtSlot('PyQt_PyObject')
     def download_finished(self, result):
         self.toggle_buttons(True)
         if isinstance(result, str):
@@ -265,6 +276,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.download_audio_thread.albums = []
         self.download_audio_thread.tracks = None
 
+    @pyqtSlot()
     def play_track(self):
         self.selected = self.trackList.selectedItems()
         selected_tracks = self._get_selected_tracks(self.selected)
@@ -282,6 +294,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.toggle_fields(False)
         self.trackList.clearSelection()
 
+    @pyqtSlot(str)
     def search_tracks(self, query=None):
         for i in self.hidden_tracks:
             i.setHidden(False)
@@ -294,17 +307,20 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 self.hidden_tracks.append(self.trackList.topLevelItem(i))
                 self.trackList.topLevelItem(i).setHidden(True)
 
+    @pyqtSlot()
     def copy_track_link(self):
         selected = self.trackList.selectedItems()
         selected_tracks = self._get_selected_tracks(selected)
         if selected_tracks:
             self.clipboard.setText(selected_tracks[0]['link'])
 
+    @pyqtSlot(int)
     def change_volume(self, level):
         self.current_volume = level
         self.mediaPlayer.setVolume(self.current_volume)
         self.statusBar().showMessage('Текущая громкость: {}'.format(self.current_volume))
 
+    @pyqtSlot(int)
     def change_position(self, pos):
         self.mediaPlayer.setPosition(pos)
 
@@ -312,6 +328,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if e.key() == Qt.Key_Delete:
             self.trackList.clearSelection()
 
+    @pyqtSlot('QTreeWidgetItem*')
     def on_item_expanded(self, item):
         if item.childCount():
             return
@@ -336,15 +353,18 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.search.setEnabled(state)
         self.btnConfirm.setEnabled(state)
 
+    @pyqtSlot(str)
     def auth_handler(self, result):
         self.key = None
         num, ok = QtWidgets.QInputDialog.getText(self, 'Двухфакторная аутентификация', result)
         if ok:
             self.key = num
 
+    @pyqtSlot()
     def _help(self):
         QtWidgets.QMessageBox.information(self, 'Помощь', open('src/help.html', encoding='utf-8').read())
 
+    @pyqtSlot()
     def _about(self):
         QtWidgets.QMessageBox.information(self, 'О программе', open('src/about.html', encoding='utf-8').read())
 
@@ -379,6 +399,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                         break
         return selected_tracks
 
+    @pyqtSlot()
     def _pause(self):
         if self.mediaPlayer.state() == 1:
             self.mediaPlayer.pause()
@@ -393,12 +414,14 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 self.downloadAllTracks.setEnabled(True)
             self.pause_button.setStyleSheet("border-radius:15px;image:url(src/pause_button.png);")
 
+    @pyqtSlot()
     def _stop(self):
         if self.mediaPlayer.state():
             self.toggle_fields(True)
             self.toggle_buttons(True)
         self.mediaPlayer.stop()
 
+    @pyqtSlot('qint64')
     def _position_changed(self, x):
         self.statusBar().showMessage(
             'Воспроизводится {}: {} / {} Громкость: {}'.format(self.selected[0].text(0),
@@ -408,11 +431,13 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.play_status.setValue(x)
         self.play_status.setMaximum(self.mediaPlayer.duration())
 
+    @pyqtSlot('QPoint')
     def _show_context_menu(self, point):
         if self.download_audio_thread.isRunning():
             self.download.setEnabled(False)
         self.context_menu.exec(self.trackList.mapToGlobal(point))
 
+    @pyqtSlot()
     def _maximize_window(self):
         self.raise_()
         self.activateWindow()
