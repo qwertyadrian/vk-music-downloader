@@ -270,7 +270,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             if self.system_tray:
                 self.system_tray.showMessage(self.__title__, 'Во время скачивания аудиозаписей произошла ошибка',
                                              qt.QSystemTrayIcon.Critical)
-            self.statusInfo.setText('<html><head/><body><p><span style=" color:#ff0000;">При скачивании'
+            self.statusInfo.setText('<html><body><p><span style=" color:#ff0000;">При скачивании'
                                     ' произошла ошибка: {}'
                                     '</span></p></body></html>'.format(result))
         self.download_audio_thread.albums = []
@@ -327,6 +327,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Delete:
             self.trackList.clearSelection()
+        if e.key() == Qt.Key_Space:
+            self._pause()
 
     @pyqtSlot('QTreeWidgetItem*')
     def on_item_expanded(self, item):
@@ -423,13 +425,16 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
 
     @pyqtSlot('qint64')
     def _position_changed(self, x):
-        self.statusBar().showMessage(
-            'Воспроизводится {}: {} / {} Громкость: {}'.format(self.selected[0].text(0),
-                                                               self.time.addMSecs(x).toString(Qt.DefaultLocaleLongDate),
-                                                               self.time.addMSecs(self.mediaPlayer.duration()).toString(
-                                                                   Qt.DefaultLocaleLongDate), self.current_volume))
-        self.play_status.setValue(x)
-        self.play_status.setMaximum(self.mediaPlayer.duration())
+        if self.selected:
+            self.statusBar().showMessage(
+                'Воспроизводится {}: {} / {} Громкость: {}'.format(self.selected[0].text(0),
+                                                                   self.time.addMSecs(x).toString(Qt.DefaultLocaleLongDate),
+                                                                   self.time.addMSecs(self.mediaPlayer.duration()).toString(
+                                                                       Qt.DefaultLocaleLongDate), self.current_volume))
+            self.play_status.setValue(x)
+            self.play_status.setMaximum(self.mediaPlayer.duration())
+        else:
+            pass
 
     @pyqtSlot('QPoint')
     def _show_context_menu(self, point):
