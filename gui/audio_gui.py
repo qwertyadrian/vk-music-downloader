@@ -1,30 +1,13 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright (C) 2019 Adrian Polyakov
+# Form implementation generated from reading ui file 'PycharmProjects/vk-music-downloader/gui/audio.ui'
 #
-#  This file is part of VkMusic Downloader
-#  VkMusic Downloader is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program. If not, see http://www.gnu.org/licenses/
-
-# Form implementation generated from reading ui file 'audio.ui'
-#
-# Created by: PyQt5 UI code generator 5.7
+# Created by: PyQt5 UI code generator 5.12.1
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-import sys
-import os.path
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -34,26 +17,26 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QtCore.QSize(780, 510))
         MainWindow.setMaximumSize(QtCore.QSize(780, 510))
         icon = QtGui.QIcon()
-        logo = resource_path("src/logo.ico")
-        icon.addPixmap(QtGui.QPixmap(logo), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/images/logo.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
-        # MainWindow.setStyleSheet(open(resource_path("src/style.css")).read())
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.login = QtWidgets.QLineEdit(self.centralwidget)
         self.login.setGeometry(QtCore.QRect(350, 10, 181, 31))
         self.login.setObjectName("login")
         self.login_text = QtWidgets.QLabel(self.centralwidget)
-        self.login_text.setGeometry(QtCore.QRect(58, 10, 291, 31))
+        self.login_text.setGeometry(QtCore.QRect(57, 10, 291, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.login_text.setFont(font)
+        self.login_text.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.login_text.setObjectName("login_text")
         self.password_text = QtWidgets.QLabel(self.centralwidget)
-        self.password_text.setGeometry(QtCore.QRect(290, 50, 61, 31))
+        self.password_text.setGeometry(QtCore.QRect(286, 50, 61, 31))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.password_text.setFont(font)
+        self.password_text.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.password_text.setObjectName("password_text")
         self.password = QtWidgets.QLineEdit(self.centralwidget)
         self.password.setGeometry(QtCore.QRect(350, 50, 181, 31))
@@ -68,6 +51,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(11)
         self.link_text.setFont(font)
+        self.link_text.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.link_text.setObjectName("link_text")
         self.user_link = QtWidgets.QLineEdit(self.centralwidget)
         self.user_link.setGeometry(QtCore.QRect(350, 90, 181, 31))
@@ -142,12 +126,10 @@ class Ui_MainWindow(object):
         self.volumeSlider.setObjectName("volumeSlider")
         self.pause_button = QtWidgets.QPushButton(self.centralwidget)
         self.pause_button.setGeometry(QtCore.QRect(340, 415, 31, 31))
-        self.pause_button.setStyleSheet("border-radius:15px;image:url(src/pause_button.png);")
         self.pause_button.setText("")
         self.pause_button.setObjectName("pause_button")
         self.stop_button = QtWidgets.QPushButton(self.centralwidget)
         self.stop_button.setGeometry(QtCore.QRect(380, 415, 31, 31))
-        self.stop_button.setStyleSheet("border-radius:15px;image:url(src/stop_button.png);")
         self.stop_button.setText("")
         self.stop_button.setObjectName("stop_button")
         self.play_status = QtWidgets.QSlider(self.centralwidget)
@@ -177,10 +159,3 @@ class Ui_MainWindow(object):
         self.progress_label.setText(_translate("MainWindow", "Прогресс скачивания:"))
         self.trackList.headerItem().setText(0, _translate("MainWindow", "Аудиозаписи"))
         self.search.setPlaceholderText(_translate("MainWindow", "Поиск..."))
-
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except AttributeError:
-        base_path = os.path.abspath('.')
-    return os.path.join(base_path, relative_path)

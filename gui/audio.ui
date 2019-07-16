@@ -29,11 +29,8 @@
    <string>VKMusic Downloader</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>src/logo.ico</normaloff>src/logo.ico</iconset>
-  </property>
-  <property name="styleSheet">
-   <string notr="true">QPlainTextEdit,QSpinBox,QTimeEdit,QLineEdit{color:#eff}QLineEdit{padding:3px;border-width:1px;border-color:#ccc;border-style:solid;font-weight:400;font-family:sans-serif}QWidget{background:#212121}QLabel,QCheckBox{color:#e8f9f9}QPushButton{background-color:#3c3c3c;border:none;color:#8a8a8a}QProgressBar{border:2px solid grey;border-radius:5px}QProgressBar::chunk{background-color:#f90;width:20px}QMenuBar{background-color:#212121;color:#fff}QMenuBar::item{spacing:3px;padding:1px 4px;background:transparent;border-radius:4px}QMenuBar::item:selected{background:#a8a8a8}QMenuBar::item:pressed{background:#888}QMenu:enabled{color:#eff}QMenu:selected{background:#a8a8a8}QTreeView{background-color:#454545}QTreeView::item{color:#fff}QTreeView::branch{background:#454545}QTreeView::branch:has-children:!has-siblings:closed,QTreeView::branch:closed:has-children:has-siblings{image:url(src/branch-closed.png)}QTreeView::branch:open:has-children:!has-siblings,QTreeView::branch:open:has-children:has-siblings{image:url(src/branch-open.png)}QStatusBar{color:#eff}QCheckBox::indicator:unchecked{image:url(src/unchecked.png)}QCheckBox::indicator:unchecked:hover{image:url(src/unchecked_hover.png)}QCheckBox::indicator:checked{image:url(src/checked.png)}QScrollBar{background:#454545}QScrollBar::down-arrow{image:url(src/branch-open.png)}QScrollBar:up-arrow{image:url(src/branch-open-180.png)}QSlider::groove:horizontal{border:1px solid #999;height:8px;background:qlineargradient(x1:0,y1:0,x2:0,y2:1,stop:0 #B1B1B1,stop:1 #c4c4c4);margin:2px 0}QSlider::handle:horizontal{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #b4b4b4,stop:1 #8f8f8f);border:1px solid #5c5c5c;width:18px;margin:-2px 0;border-radius:3px}</string>
+   <iconset resource="audio_res.qrc">
+    <normaloff>:/images/logo.ico</normaloff>:/images/logo.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLineEdit" name="login">
@@ -49,7 +46,7 @@
    <widget class="QLabel" name="login_text">
     <property name="geometry">
      <rect>
-      <x>58</x>
+      <x>57</x>
       <y>10</y>
       <width>291</width>
       <height>31</height>
@@ -63,11 +60,14 @@
     <property name="text">
      <string>Номер телефона или электронная почта:</string>
     </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
    </widget>
    <widget class="QLabel" name="password_text">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>286</x>
       <y>50</y>
       <width>61</width>
       <height>31</height>
@@ -80,6 +80,9 @@
     </property>
     <property name="text">
      <string>Пароль:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QLineEdit" name="password">
@@ -123,6 +126,9 @@
     </property>
     <property name="text">
      <string>Ссылка на профиль пользователя (сообщества):</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QLineEdit" name="user_link">
@@ -373,9 +379,6 @@
       <height>31</height>
      </rect>
     </property>
-    <property name="styleSheet">
-     <string notr="true">border-radius:15px;image:url(src/pause_button.png);</string>
-    </property>
     <property name="text">
      <string/>
     </property>
@@ -388,9 +391,6 @@
       <width>31</width>
       <height>31</height>
      </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">border-radius:15px;image:url(src/stop_button.png);</string>
     </property>
     <property name="text">
      <string/>
@@ -414,6 +414,8 @@
    </widget>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="audio_res.qrc"/>
+ </resources>
  <connections/>
 </ui>
