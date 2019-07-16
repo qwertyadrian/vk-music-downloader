@@ -153,9 +153,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         help_file.close()
         del help_file
 
-        about_file = QFile(":/html/help.html")
+        about_file = QFile(":/html/about.html")
         about_file.open(QFile.ReadOnly)
-        self.about_message = help_file.readAll().data().decode()
+        self.about_message = about_file.readAll().data().decode()
         about_file.close()
         del about_file
 
