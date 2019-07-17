@@ -21,7 +21,7 @@ import os.path
 from random import choice
 
 from PyQt5 import QtWidgets
-from PyQt5 import Qt as qt
+from PyQt5 import Qt
 from PyQt5.QtCore import QSizeF, QUrl, Qt, QTime, pyqtSlot, QFile
 from PyQt5.QtGui import QIcon
 from PyQt5.QtMultimedia import *
@@ -44,7 +44,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.start_dir = os.getcwd()
         self.clipboard = QtWidgets.qApp.clipboard()
         try:
-            self.system_tray = qt.QSystemTrayIcon(QIcon(':/images/logo.ico'), self)
+            self.system_tray = Qt.QSystemTrayIcon(QIcon(':/images/logo.ico'), self)
             self.system_tray.messageClicked.connect(self._maximize_window)
             self.system_tray.activated.connect(self._maximize_window)
             self.system_tray.show()
@@ -65,28 +65,36 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.saveAll = self._create_action(':/images/save_all.png', '&Сохранить',
                                            'Сохранить список аудиозаписей в файл со ссылками для их скачивания',
                                            'Ctrl+S', False, self.save_all)
+
         self.saveWithoutLinks = self._create_action(':/images/save_without_links.png', '&Сохранить без ссылок',
                                                     'Сохранить список аудиозаписей в файл без ссылок для их скачивания',
                                                     'Ctrl+Shift+S', False, self.save_without_links)
+
         self.download = self._create_action(':/images/download.png', '&Скачать',
                                             'Скачать выбранные ауиозаписи или всё, если ничего не выбрано', False,
                                             callback=self.download_audio_dialog)
+
         self.luckyMe = self._create_action(':/images/lucky_me.png', '&Мне повёзет',
                                            'Воспроизвести случайную аудиозапись из списка', 'Ctrl+L', False,
                                            self.play_track)
+
         self.helpDialog = self._create_action(':/images/help.png', '&Помощь', 'Помощь по программе', 'Ctrl+H',
                                               callback=self._help)
+
         self.aboutDialog = self._create_action(':/images/about.png', '&О программе',
-                                               'Показать информацию о VkMusic Downloader',
-                                               callback=self._about)
+                                               'Показать информацию о VkMusic Downloader', callback=self._about)
+
         self.copyTrackLink = self._create_action(':/images/copy.png', '&Копировать ссылку для скачивания',
                                                  'Копировать прямую ссылку на файл аудиозаписи',
                                                  callback=self.copy_track_link)
+
         self.playTrack = self._create_action(':/images/play.png', '&Воспроизвести', 'Воспроизвести вудиозапись',
                                              callback=self.play_track)
+
         self.downloadAllTracks = self._create_action(':/images/download_all.png', '&Скачать всё',
-                                                     'Скачать все аудиозаписи пользователя', 'Ctrl+D',  False,
+                                                     'Скачать все аудиозаписи пользователя', 'Ctrl+D', False,
                                                      self.download_all_tracks)
+
         self.exit = self._create_action(':/images/exit.png', '&Выход', 'Выйти из VkMusic Downloader', 'Ctrl+Q',
                                         callback=QtWidgets.qApp.exit)
         # Generating Menu Bar
@@ -172,8 +180,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if self.saveData.isChecked():
             with open(self.config, 'wb') as d:
                 data = self.login.text() + '|' + self.password.text() + '|' + self.user_link.text()
-                data_crypted = codecs.encode(bytes(data, 'utf-8'), 'hex')
-                d.write(data_crypted)
+                data_encrypted = codecs.encode(bytes(data, 'utf-8'), 'hex')
+                d.write(data_encrypted)
         self.get_audio_thread.login = self.login.text()
         self.get_audio_thread.password = self.password.text()
         self.get_audio_thread.user_link = self.user_link.text()
@@ -209,7 +217,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         elif isinstance(result, str):
             if self.system_tray:
                 self.system_tray.showMessage(self.__title__, 'Во время получения аудиозаписей произошла ошибка',
-                                             qt.QSystemTrayIcon.Critical)
+                                             Qt.QSystemTrayIcon.Critical)
             self.btnConfirm.setEnabled(True)
             self.statusInfo.setText('<html><head/><body><p><span style=" color:#ff0000;">Ошибка: {}'
                                     '</span></p></body></html>'.format(result))
@@ -280,7 +288,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         else:
             if self.system_tray:
                 self.system_tray.showMessage(self.__title__, 'Во время скачивания аудиозаписей произошла ошибка',
-                                             qt.QSystemTrayIcon.Critical)
+                                             Qt.QSystemTrayIcon.Critical)
             self.statusInfo.setText('<html><body><p><span style=" color:#ff0000;">При скачивании'
                                     ' произошла ошибка: {}'
                                     '</span></p></body></html>'.format(result))
@@ -437,11 +445,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     @pyqtSlot('qint64')
     def _position_changed(self, x):
         if self.selected:
-            self.statusBar().showMessage(
-                'Воспроизводится {}: {} / {} Громкость: {}'.format(self.selected[0].text(0),
-                                                                   self.time.addMSecs(x).toString(Qt.DefaultLocaleLongDate),
-                                                                   self.time.addMSecs(self.mediaPlayer.duration()).toString(
-                                                                       Qt.DefaultLocaleLongDate), self.current_volume))
+            self.statusBar().showMessage('Воспроизводится {}: {} / {} Громкость: {}'.format(
+                self.selected[0].text(0),
+                self.time.addMSecs(x).toString(Qt.DefaultLocaleLongDate),
+                self.time.addMSecs(self.mediaPlayer.duration()).toString(Qt.DefaultLocaleLongDate),
+                self.current_volume))
             self.play_status.setValue(x)
             self.play_status.setMaximum(self.mediaPlayer.duration())
         else:
