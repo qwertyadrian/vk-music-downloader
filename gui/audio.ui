@@ -11,19 +11,19 @@
     <x>0</x>
     <y>0</y>
     <width>780</width>
-    <height>510</height>
+    <height>522</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>780</width>
-    <height>510</height>
+    <height>522</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>780</width>
-    <height>510</height>
+    <height>522</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -414,6 +414,139 @@
     </property>
    </widget>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>780</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="music_menu">
+    <property name="title">
+     <string>&amp;Музыка</string>
+    </property>
+    <addaction name="saveAll"/>
+    <addaction name="saveWithoutLinks"/>
+    <addaction name="separator"/>
+    <addaction name="downloadAllTracks"/>
+    <addaction name="separator"/>
+    <addaction name="luckyMe"/>
+    <addaction name="separator"/>
+    <addaction name="exit"/>
+   </widget>
+   <widget class="QMenu" name="help_menu">
+    <property name="title">
+     <string>&amp;Помощь</string>
+    </property>
+    <addaction name="helpDialog"/>
+    <addaction name="separator"/>
+    <addaction name="aboutDialog"/>
+   </widget>
+   <addaction name="music_menu"/>
+   <addaction name="help_menu"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="saveAll">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="audio_res.qrc">
+     <normaloff>:/images/save_all.png</normaloff>:/images/save_all.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Сохранить</string>
+   </property>
+   <property name="statusTip">
+    <string>Сохранить список аудиозаписей в файл со ссылками для их скачивания</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="saveWithoutLinks">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Сохранить &amp;без ссылок</string>
+   </property>
+   <property name="statusTip">
+    <string>Сохранить список аудиозаписей в файл без ссылок для их скачивания</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="downloadAllTracks">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="audio_res.qrc">
+     <normaloff>:/images/download_all.png</normaloff>:/images/download_all.png</iconset>
+   </property>
+   <property name="text">
+    <string>С&amp;качать всё</string>
+   </property>
+   <property name="statusTip">
+    <string>Скачать все аудиозаписи пользователя</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="luckyMe">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Мне повезёт</string>
+   </property>
+   <property name="statusTip">
+    <string>Воспроизвести случайную аудиозапись из списка</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="exit">
+   <property name="icon">
+    <iconset resource="audio_res.qrc">
+     <normaloff>:/images/exit.png</normaloff>:/images/exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Выход</string>
+   </property>
+   <property name="statusTip">
+    <string>Выход из VKMusic Downloader</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="helpDialog">
+   <property name="icon">
+    <iconset resource="audio_res.qrc">
+     <normaloff>:/images/help.png</normaloff>:/images/help.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Помощь</string>
+   </property>
+   <property name="statusTip">
+    <string>Помощь по VkMusic Downloader</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="aboutDialog">
+   <property name="text">
+    <string>&amp;О программе</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="audio_res.qrc"/>

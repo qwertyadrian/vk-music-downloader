@@ -36,7 +36,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def __init__(self, info, config, cookie):
         super().__init__()
         self.setupUi(self)
-        self.statusBar()
+        # self.statusBar()
 
         self.__title__ = self.windowTitle()
 
@@ -62,27 +62,13 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.pause_button.clicked.connect(self._pause)
         self.stop_button.clicked.connect(self._stop)
 
-        self.saveAll = self._create_action(':/images/save_all.png', '&Сохранить',
-                                           'Сохранить список аудиозаписей в файл со ссылками для их скачивания',
-                                           'Ctrl+S', False, self.save_all)
-
-        self.saveWithoutLinks = self._create_action(':/images/save_without_links.png', '&Сохранить без ссылок',
-                                                    'Сохранить список аудиозаписей в файл без ссылок для их скачивания',
-                                                    'Ctrl+Shift+S', False, self.save_without_links)
-
-        self.download = self._create_action(':/images/download.png', '&Скачать',
-                                            'Скачать выбранные ауиозаписи или всё, если ничего не выбрано', False,
-                                            callback=self.download_audio_dialog)
-
-        self.luckyMe = self._create_action(':/images/lucky_me.png', '&Мне повёзет',
-                                           'Воспроизвести случайную аудиозапись из списка', 'Ctrl+L', False,
-                                           self.play_track)
-
-        self.helpDialog = self._create_action(':/images/help.png', '&Помощь', 'Помощь по программе', 'Ctrl+H',
-                                              callback=self._help)
-
-        self.aboutDialog = self._create_action(':/images/about.png', '&О программе',
-                                               'Показать информацию о VkMusic Downloader', callback=self._about)
+        self.saveAll.triggered.connect(self.save_all)
+        self.saveWithoutLinks.triggered.connect(self.save_without_links)
+        self.downloadAllTracks.triggered.connect(self.download_all_tracks)
+        self.luckyMe.triggered.connect(self.play_track)
+        self.helpDialog.triggered.connect(self._help)
+        self.aboutDialog.triggered.connect(self._about)
+        self.exit.triggered.connect(QtWidgets.qApp.exit)
 
         self.copyTrackLink = self._create_action(':/images/copy.png', '&Копировать ссылку для скачивания',
                                                  'Копировать прямую ссылку на файл аудиозаписи',
@@ -91,28 +77,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.playTrack = self._create_action(':/images/play.png', '&Воспроизвести', 'Воспроизвести вудиозапись',
                                              callback=self.play_track)
 
-        self.downloadAllTracks = self._create_action(':/images/download_all.png', '&Скачать всё',
-                                                     'Скачать все аудиозаписи пользователя', 'Ctrl+D', False,
-                                                     self.download_all_tracks)
-
-        self.exit = self._create_action(':/images/exit.png', '&Выход', 'Выйти из VkMusic Downloader', 'Ctrl+Q',
-                                        callback=QtWidgets.qApp.exit)
-        # Generating Menu Bar
-        menu_bar = self.menuBar()
-        music_menu = menu_bar.addMenu('&Музыка')
-        music_menu.addAction(self.saveAll)
-        music_menu.addAction(self.saveWithoutLinks)
-        music_menu.addSeparator()
-        music_menu.addAction(self.downloadAllTracks)
-        music_menu.addSeparator()
-        music_menu.addAction(self.luckyMe)
-        music_menu.addSeparator()
-        music_menu.addAction(self.exit)
-
-        help_menu = menu_bar.addMenu('&Помощь')
-        help_menu.addAction(self.helpDialog)
-        help_menu.addSeparator()
-        help_menu.addAction(self.aboutDialog)
+        self.download = self._create_action(':/images/download.png', '&Скачать',
+                                            'Скачать выбранные ауиозаписи или всё, если ничего не выбрано', False,
+                                            callback=self.download_audio_dialog)
 
         self.context_menu = QtWidgets.QMenu(self)
         self.context_menu.addAction(self.playTrack)
@@ -173,6 +140,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.string = None
         self.albums = None
         self.key = None
+        # self.help = HelpDialog()
+        # self.help.show()
 
     @pyqtSlot()
     def get_audio_list(self):
@@ -337,7 +306,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def change_volume(self, level):
         self.current_volume = level
         self.mediaPlayer.setVolume(self.current_volume)
-        self.statusBar().showMessage('Текущая громкость: {}'.format(self.current_volume))
+        self.statusBar.showMessage('Текущая громкость: {}'.format(self.current_volume))
 
     @pyqtSlot(int)
     def change_position(self, pos):
@@ -445,7 +414,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     @pyqtSlot('qint64')
     def _position_changed(self, x):
         if self.selected:
-            self.statusBar().showMessage('Воспроизводится {}: {} / {} Громкость: {}'.format(
+            self.statusBar.showMessage('Воспроизводится {}: {} / {} Громкость: {}'.format(
                 self.selected[0].text(0),
                 self.time.addMSecs(x).toString(Qt.DefaultLocaleLongDate),
                 self.time.addMSecs(self.mediaPlayer.duration()).toString(Qt.DefaultLocaleLongDate),
@@ -467,3 +436,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.activateWindow()
         self.showMaximized()
         self.showNormal()
+
+
+# class HelpDialog(QtWidgets.QWidget):
+#     def __init__(self):
+#         super(HelpDialog, self).__init__()
+#         uic.loadUi('gui/help.ui')
