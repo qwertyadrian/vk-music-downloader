@@ -22,12 +22,12 @@ from random import choice
 
 from PyQt5 import QtWidgets
 from PyQt5 import Qt
-from PyQt5.QtCore import QSizeF, QUrl, Qt, QTime, pyqtSlot, QFile
+from PyQt5.QtCore import QSizeF, QUrl, Qt, QTime, pyqtSlot
 from PyQt5.QtGui import QIcon
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 
-from gui import audio_gui, audio_res_rc
+from gui import audio_gui, help_dialog, about_dialog
 from audio_threads import DownloadAudio, GetAudioListThread
 
 
@@ -36,7 +36,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def __init__(self, info, config, cookie):
         super().__init__()
         self.setupUi(self)
-        # self.statusBar()
+
+        self.help = HelpDialog(self)
+        self.about = AboutDialog(self)
 
         self.__title__ = self.windowTitle()
 
@@ -66,8 +68,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.saveWithoutLinks.triggered.connect(self.save_without_links)
         self.downloadAllTracks.triggered.connect(self.download_all_tracks)
         self.luckyMe.triggered.connect(self.play_track)
-        self.helpDialog.triggered.connect(self._help)
-        self.aboutDialog.triggered.connect(self._about)
+        self.helpDialog.triggered.connect(self.help.show)
+        self.aboutDialog.triggered.connect(self.about.show)
         self.exit.triggered.connect(QtWidgets.qApp.exit)
 
         self.copyTrackLink = self._create_action(':/images/copy.png', '&Копировать ссылку для скачивания',
@@ -108,9 +110,6 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.mediaPlayer.stateChanged.connect(lambda x: [self.toggle_buttons(True), self.toggle_fields(True)])
         self.mediaPlayer.positionChanged.connect(self._position_changed)
 
-        self.pause_button.setStyleSheet("border-radius:15px;image:url(:/images/pause_button.png);")
-        self.stop_button.setStyleSheet("border-radius:15px;image:url(:/images/stop_button.png);")
-
         if info:
             self.login.setText(info[0])
             self.password.setText(info[1])
@@ -122,26 +121,12 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                       'В следствии этого, сохранение введенных данных работать не будет'.format(os.path.dirname(cookie))
             QtWidgets.QMessageBox.warning(self, 'Предупреждение', message)
 
-        help_file = QFile(":/html/help.html")
-        help_file.open(QFile.ReadOnly)
-        self.help_message = help_file.readAll().data().decode()
-        help_file.close()
-        del help_file
-
-        about_file = QFile(":/html/about.html")
-        about_file.open(QFile.ReadOnly)
-        self.about_message = about_file.readAll().data().decode()
-        about_file.close()
-        del about_file
-
         self.hidden_tracks = []
         self.selected = None
         self.tracks = None
         self.string = None
         self.albums = None
         self.key = None
-        # self.help = HelpDialog()
-        # self.help.show()
 
     @pyqtSlot()
     def get_audio_list(self):
@@ -350,14 +335,6 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if ok:
             self.key = num
 
-    @pyqtSlot()
-    def _help(self):
-        QtWidgets.QMessageBox.information(self, 'Помощь', self.help_message)
-
-    @pyqtSlot()
-    def _about(self):
-        QtWidgets.QMessageBox.information(self, 'О программе', self.about_message)
-
     def _create_action(self, icon_path, text, status_tip=None, shortcut=None, set_enabled=True, callback=None):
         action = QtWidgets.QAction(QIcon(icon_path), text, self)
         if status_tip:
@@ -438,7 +415,14 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.showNormal()
 
 
-# class HelpDialog(QtWidgets.QWidget):
-#     def __init__(self):
-#         super(HelpDialog, self).__init__()
-#         uic.loadUi('gui/help.ui')
+class HelpDialog(QtWidgets.QDialog, help_dialog.Ui_helpDialog):
+    def __init__(self, *args):
+        super(HelpDialog, self).__init__(*args)
+        self.setupUi(self)
+
+
+class AboutDialog(QtWidgets.QDialog, about_dialog.Ui_aboutDialog):
+    def __init__(self, *args):
+        super(AboutDialog, self).__init__(*args)
+        self.setupUi(self)
+

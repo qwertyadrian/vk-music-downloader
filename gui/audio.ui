@@ -380,6 +380,9 @@
       <height>31</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">border-radius:15px;image:url(:/images/pause_button.png);</string>
+    </property>
     <property name="text">
      <string/>
     </property>
@@ -392,6 +395,9 @@
       <width>31</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-radius:15px;image:url(:/images/stop_button.png);</string>
     </property>
     <property name="text">
      <string/>
@@ -545,6 +551,9 @@
   <action name="aboutDialog">
    <property name="text">
     <string>&amp;О программе</string>
+   </property>
+   <property name="statusTip">
+    <string>Информация о VkMusic Downloader</string>
    </property>
   </action>
  </widget>

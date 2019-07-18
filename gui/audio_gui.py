@@ -126,10 +126,12 @@ class Ui_MainWindow(object):
         self.volumeSlider.setObjectName("volumeSlider")
         self.pause_button = QtWidgets.QPushButton(self.centralwidget)
         self.pause_button.setGeometry(QtCore.QRect(340, 415, 31, 31))
+        self.pause_button.setStyleSheet("border-radius:15px;image:url(:/images/pause_button.png);")
         self.pause_button.setText("")
         self.pause_button.setObjectName("pause_button")
         self.stop_button = QtWidgets.QPushButton(self.centralwidget)
         self.stop_button.setGeometry(QtCore.QRect(380, 415, 31, 31))
+        self.stop_button.setStyleSheet("border-radius:15px;image:url(:/images/stop_button.png);")
         self.stop_button.setText("")
         self.stop_button.setObjectName("stop_button")
         self.play_status = QtWidgets.QSlider(self.centralwidget)
@@ -234,6 +236,7 @@ class Ui_MainWindow(object):
         self.helpDialog.setStatusTip(_translate("MainWindow", "Помощь по VkMusic Downloader"))
         self.helpDialog.setShortcut(_translate("MainWindow", "Ctrl+H"))
         self.aboutDialog.setText(_translate("MainWindow", "&О программе"))
+        self.aboutDialog.setStatusTip(_translate("MainWindow", "Информация о VkMusic Downloader"))
 
 
-from gui import audio_res_rc
+from gui import audio_res
