@@ -256,9 +256,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def play_track(self):
         self.selected = self.trackList.selectedItems()
         selected_tracks = self._get_selected_tracks(self.selected)
-        if selected_tracks:
-            pass
-        else:
+        if not selected_tracks:
             # Play random track :)
             track = choice(self.tracks)
             selected_tracks.append(track)
@@ -277,9 +275,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.hidden_tracks.clear()
         result = [i.text(0) for i in self.trackList.findItems(query, Qt.MatchContains)]
         for i in range(self.trackList.topLevelItemCount()):
-            if self.trackList.topLevelItem(i).text(0) in result:
-                pass
-            else:
+            if not self.trackList.topLevelItem(i).text(0) in result:
                 self.hidden_tracks.append(self.trackList.topLevelItem(i))
                 self.trackList.topLevelItem(i).setHidden(True)
 
@@ -401,8 +397,6 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 self.current_volume))
             self.play_status.setValue(x)
             self.play_status.setMaximum(self.mediaPlayer.duration())
-        else:
-            pass
 
     @pyqtSlot('QPoint')
     def _show_context_menu(self, point):
