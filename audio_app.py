@@ -22,10 +22,9 @@ from random import choice
 
 from PyQt5 import QtWidgets
 from PyQt5 import Qt
-from PyQt5.QtCore import QSizeF, QUrl, Qt, QTime, pyqtSlot
+from PyQt5.QtCore import QUrl, Qt, QTime, pyqtSlot
 from PyQt5.QtGui import QIcon
 from PyQt5.QtMultimedia import *
-from PyQt5.QtMultimediaWidgets import QGraphicsVideoItem
 
 from gui import audio_gui, help_dialog, about_dialog
 from audio_threads import DownloadAudio, GetAudioListThread
@@ -46,7 +45,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.start_dir = os.getcwd()
         self.clipboard = QtWidgets.qApp.clipboard()
         try:
-            self.system_tray = Qt.QSystemTrayIcon(QIcon(':/images/logo.ico'), self)
+            self.system_tray = QtWidgets.QSystemTrayIcon(QIcon(':/images/logo.ico'), self)
             self.system_tray.messageClicked.connect(self._maximize_window)
             self.system_tray.activated.connect(self._maximize_window)
             self.system_tray.show()
@@ -72,6 +71,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.aboutDialog.triggered.connect(self.about.show)
         self.exit.triggered.connect(QtWidgets.qApp.exit)
 
+        # Инициализация контекстного меню
         self.copyTrackLink = self._create_action(':/images/copy.png', '&Копировать ссылку для скачивания',
                                                  'Копировать прямую ссылку на файл аудиозаписи',
                                                  callback=self.copy_track_link)
@@ -88,6 +88,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.context_menu.addAction(self.download)
         self.context_menu.addSeparator()
         self.context_menu.addAction(self.copyTrackLink)
+        # Инициализация контекстного меню для системного трея
+        self.system_tray_menu = QtWidgets.QMenu(self)
+        self.system_tray_menu.addAction(self.exit)
+        self.system_tray.setContextMenu(self.system_tray_menu)
+        # Конец инициализации контекстного меню
 
         self.trackList.itemDoubleClicked.connect(self.play_track)
         self.trackList.itemExpanded.connect(self.on_item_expanded)
@@ -101,6 +106,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.download_audio_thread.signal.connect(self.download_finished)
         self.download_audio_thread.int_signal.connect(lambda x: self.progressBar.setValue(x))
 
+        # Инициализация аудиоплеера
         self.current_volume = 100
         self.time = QTime(0, 0)
         self.mediaPlayer = QMediaPlayer(self)
@@ -132,7 +138,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             with open(self.config, 'wb') as d:
                 data = self.login.text() + '|' + self.password.text() + '|' + self.user_link.text()
                 data_encrypted = codecs.encode(bytes(data, 'utf-8'), 'hex')
-                d.write(data_encrypted)
+                d.write(codecs.encode(data_encrypted, 'base64'))
         self.get_audio_thread.login = self.login.text()
         self.get_audio_thread.password = self.password.text()
         self.get_audio_thread.user_link = self.user_link.text()
@@ -168,7 +174,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         elif isinstance(result, str):
             if self.system_tray:
                 self.system_tray.showMessage(self.__title__, 'Во время получения аудиозаписей произошла ошибка',
-                                             Qt.QSystemTrayIcon.Critical)
+                                             QtWidgets.QSystemTrayIcon.Critical)
             self.btnConfirm.setEnabled(True)
             self.statusInfo.setText('<html><head/><body><p><span style=" color:#ff0000;">Ошибка: {}'
                                     '</span></p></body></html>'.format(result))
@@ -239,7 +245,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         else:
             if self.system_tray:
                 self.system_tray.showMessage(self.__title__, 'Во время скачивания аудиозаписей произошла ошибка',
-                                             Qt.QSystemTrayIcon.Critical)
+                                             QtWidgets.QSystemTrayIcon.Critical)
             self.statusInfo.setText('<html><body><p><span style=" color:#ff0000;">При скачивании'
                                     ' произошла ошибка: {}'
                                     '</span></p></body></html>'.format(result))
@@ -422,4 +428,3 @@ class AboutDialog(QtWidgets.QDialog, about_dialog.Ui_aboutDialog):
     def __init__(self, *args):
         super(AboutDialog, self).__init__(*args)
         self.setupUi(self)
-

@@ -41,7 +41,7 @@ if __name__ == '__main__':
     if os.path.exists(home):
         if os.path.exists(config):
             with open(config, 'rb') as f:
-                info_encrypted = f.read()
+                info_encrypted = codecs.decode(f.read(), 'base64')
                 info = codecs.decode(info_encrypted, 'hex').decode().split('|')
     else:
         os.mkdir(home)
