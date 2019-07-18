@@ -101,12 +101,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.download_audio_thread.signal.connect(self.download_finished)
         self.download_audio_thread.int_signal.connect(lambda x: self.progressBar.setValue(x))
 
-        video_item = QGraphicsVideoItem()
         self.current_volume = 100
-        self.time = QTime(0, 0, 0, 0)
-        video_item.setSize(QSizeF(1, 1))
-        self.mediaPlayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
-        self.mediaPlayer.setVideoOutput(video_item)
+        self.time = QTime(0, 0)
+        self.mediaPlayer = QMediaPlayer(self)
         self.mediaPlayer.stateChanged.connect(lambda x: [self.toggle_buttons(True), self.toggle_fields(True)])
         self.mediaPlayer.positionChanged.connect(self._position_changed)
 
@@ -393,8 +390,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if self.selected:
             self.statusBar.showMessage('Воспроизводится {}: {} / {} Громкость: {}'.format(
                 self.selected[0].text(0),
-                self.time.addMSecs(x).toString(Qt.DefaultLocaleLongDate),
-                self.time.addMSecs(self.mediaPlayer.duration()).toString(Qt.DefaultLocaleLongDate),
+                self.time.addMSecs(x).toString("mm:ss"),
+                self.time.addMSecs(self.mediaPlayer.duration()).toString("mm:ss"),
                 self.current_volume))
             self.play_status.setValue(x)
             self.play_status.setMaximum(self.mediaPlayer.duration())
