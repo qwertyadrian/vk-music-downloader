@@ -163,7 +163,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.btnConfirm.setEnabled(True)
             for track in self.tracks:
                 self.trackList.addTopLevelItem(
-                    QtWidgets.QTreeWidgetItem(self.trackList, ['%(artist)s — %(title)s' % track, '%(link)s' % track])
+                    QtWidgets.QTreeWidgetItem(self.trackList, ['%(artist)s — %(title)s' % track, '%(url)s' % track])
                 )
             for album in self.albums:
                 root = QtWidgets.QTreeWidgetItem(self.trackList, [album['title']])
@@ -261,7 +261,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             track = choice(self.tracks)
             selected_tracks.append(track)
             self.selected.append(self.trackList.findItems('%(artist)s — %(title)s' % track, Qt.MatchContains)[0])
-        local = QUrl(selected_tracks[0]['link'])
+        local = QUrl(selected_tracks[0]['url'])
         media = QMediaContent(local)
         self.mediaPlayer.setMedia(media)
         self.mediaPlayer.play()
@@ -284,7 +284,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         selected = self.trackList.selectedItems()
         selected_tracks = self._get_selected_tracks(selected)
         if selected_tracks:
-            self.clipboard.setText(selected_tracks[0]['link'])
+            self.clipboard.setText(selected_tracks[0]['url'])
 
     @pyqtSlot(int)
     def change_volume(self, level):

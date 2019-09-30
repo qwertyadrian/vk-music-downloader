@@ -21,10 +21,8 @@ import os.path
 from re import sub
 
 from PyQt5.QtCore import QThread, pyqtSignal
-from bs4 import BeautifulSoup
 from vk_api import VkApi, exceptions
 from vk_api.audio import VkAudio
-from vk_api.audio_url_decoder import decode_audio_url
 from wget import download
 
 
@@ -45,7 +43,7 @@ class GetAudioListThread(QThread):
         self.wait()
 
     def _get_user_audio(self, user_login, user_password, userlink):
-        url = 'https://m.vk.com/audios{}'
+        string = ''
         session = VkApi(login=user_login, password=user_password, auth_handler=self.auth_handler,
                         config_filename=self.cookie)
         self.statusInfo.setText('Авторизация.')
@@ -54,66 +52,31 @@ class GetAudioListThread(QThread):
         vk_audio = VkAudio(session)
         session.http.cookies.update(dict(remixmdevice='1920/1080/1/!!-!!!!'))
         user_id = userlink.replace('https://vk.com/', '').replace('https://m.vk.com/', '')
-        me = api_vk.users.get()[0]
         if not user_id:
             user_id = None
         # noinspection PyBroadException
         try:
             id = api_vk.users.get(user_ids=user_id)[0]
-            url = url.format(id['id'])
             self.statusInfo.setText('Получение списка аудиозаписей пользователя: {} {}'.format(id['first_name'],
                                                                                                id['last_name']))
+            string = 'Музыка пользователя: {} {}'.format(id['first_name'], id['last_name'])
         except Exception:
             id = None
         if not id:
             group_id = api_vk.groups.getById(group_id=user_id)[0]
-            url = url.format(-int(group_id['id']))
             self.statusInfo.setText('Получение списка аудиозаписей сообщества: {}'.format(group_id['name']))
+            string = 'Музыка сообщества: {}'.format(group_id['name'])
             albums = vk_audio.get_albums(-group_id['id'])
+            tracks = vk_audio.get(-group_id['id'])
         else:
             albums = vk_audio.get_albums(id['id'])
-        tracks, string = self._get_audio(session, url, me)
+            tracks = vk_audio.get(id['id'])
         for album in albums:
-            a = album['url']
-            album['url'] = a[:a.find('/audio?act=audio_playlist')] + a[a.rfind('/audio?act=audio_playlist'):]
-            album['tracks'], tmp = self._get_audio(session, album['url'], me)
+            album['tracks'] = vk_audio.get(owner_id=album['owner_id'],
+                                           album_id=album['id'],
+                                           access_hash=album['access_hash'])
         tracks.sort(key=lambda d: d['artist'])
         return tracks, string, albums
-
-    @staticmethod
-    def _get_audio(session, url, me):
-        tracks = []
-        offset = 0
-        while True:
-            response = session.http.get(url, params={'offset': offset}, allow_redirects=False)
-            soup = BeautifulSoup(response.text, 'html.parser')
-            temp = []
-            for audio in soup.find_all('div', {'class': 'audio_item'}):
-                # noinspection PyBroadException
-                try:
-                    artist = audio.select_one('.ai_artist').text
-                    title = audio.select_one('.ai_title').text
-                    duration = int(audio.select_one('.ai_dur')['data-dur'])
-                    link = audio.select_one('.ai_body').input['value']
-                except Exception:
-                    continue
-                if 'audio_api_unavailable' in link:
-                    try:
-                        link = decode_audio_url(link, me['id'])
-                    except IndexError:
-                        continue
-                    temp.append({'artist': artist.lstrip(), 'title': title, 'duration': duration, 'link': link})
-            if len(temp) < 6:
-                tracks = temp.copy()
-            else:
-                tracks += temp[:-6]
-            try:
-                if int(soup.find_all('div', {'class': 'audioPage__count'})[0].string.split()[0]) <= offset:
-                    break
-                offset += 50
-            except IndexError:
-                break
-        return tracks, soup.title.string
 
     def auth_handler(self):
         """
@@ -187,7 +150,7 @@ class DownloadAudio(QThread):
         if len(name) > 127:
             name = name[:126]
         self.statusInfo.setText('Скачивается {}'.format(name))
-        download(track['link'], out=name, bar=None)
+        download(track['url'], out=name, bar=None)
 
     def run(self):
         try:
