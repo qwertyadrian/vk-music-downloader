@@ -18,12 +18,12 @@
 #  along with this program. If not, see http://www.gnu.org/licenses/
 import os
 import os.path
+import subprocess
 from re import sub
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from vk_api import VkApi, exceptions
 from vk_api.audio import VkAudio
-from wget import download
 
 
 class GetAudioListThread(QThread):
@@ -150,7 +150,7 @@ class DownloadAudio(QThread):
         if len(name) > 127:
             name = name[:126]
         self.statusInfo.setText('Скачивается {}'.format(name))
-        download(track['url'], out=name, bar=None)
+        subprocess.call(['ffmpeg', '-i', track['url'], '-c', 'copy', name])
 
     def run(self):
         try:
