@@ -18,12 +18,13 @@
 #  along with this program. If not, see http://www.gnu.org/licenses/
 import os
 import os.path
-import subprocess
 from re import sub
+from collections import Counter
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from vk_api import VkApi, exceptions
 from vk_api.audio import VkAudio
+from wget import download
 
 
 class GetAudioListThread(QThread):
@@ -75,6 +76,19 @@ class GetAudioListThread(QThread):
             album['tracks'] = vk_audio.get(owner_id=album['owner_id'],
                                            album_id=album['id'],
                                            access_hash=album['access_hash'])
+        # Removing duplicates
+        names = []
+        for track in tracks:
+            names.append((track['artist'], track['title']))
+        stats = Counter(names)
+
+        for i, n in stats.most_common():
+            if n >= 2:
+                for track in tracks:
+                    if track['artist'] == i[0] and track['title'] == i[1]:
+                        tracks.remove(track)
+                        break
+
         tracks.sort(key=lambda d: d['artist'])
         return tracks, string, albums
 
@@ -150,7 +164,7 @@ class DownloadAudio(QThread):
         if len(name) > 127:
             name = name[:126]
         self.statusInfo.setText('Скачивается {}'.format(name))
-        subprocess.call(['ffmpeg', '-i', track['url'], '-c', 'copy', name])
+        download(track['url'], out=name, bar=None)
 
     def run(self):
         try:
