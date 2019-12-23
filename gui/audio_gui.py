@@ -2,9 +2,10 @@
 
 # Form implementation generated from reading ui file 'gui/audio.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.1
+# Created by: PyQt5 UI code generator 5.14.0
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -237,6 +238,4 @@ class Ui_MainWindow(object):
         self.helpDialog.setShortcut(_translate("MainWindow", "Ctrl+H"))
         self.aboutDialog.setText(_translate("MainWindow", "&О программе"))
         self.aboutDialog.setStatusTip(_translate("MainWindow", "Информация о VkMusic Downloader"))
-
-
 from gui import audio_res

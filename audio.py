@@ -17,7 +17,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
-import codecs
+import keyring
 import os.path
 import sys
 import tempfile
@@ -38,11 +38,9 @@ if __name__ == '__main__':
         home = tempfile.TemporaryDirectory()
     config = os.path.join(home, '.config.ini')
     cookie = os.path.join(home, 'vk_cookies.json')
-    if os.path.exists(home):
-        if os.path.exists(config):
-            with open(config, 'rb') as f:
-                info_encrypted = codecs.decode(f.read(), 'base64')
-                info = codecs.decode(info_encrypted, 'hex').decode().split('|')
-    else:
+    data = keyring.get_password('vk_music_downloader', os.getlogin())
+    if isinstance(data, str):
+        info = data.split('|')
+    if not os.path.exists(home):
         os.mkdir(home)
     ui()

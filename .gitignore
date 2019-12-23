@@ -107,3 +107,4 @@ venv.bak/
 .idea/
 test_.py
 vk_config.v2.json
+Pipfile.lock

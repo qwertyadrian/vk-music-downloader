@@ -16,10 +16,10 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
-import codecs
 import os.path
 from random import choice
 
+import keyring
 from PyQt5 import QtWidgets
 from PyQt5 import Qt
 from PyQt5.QtCore import QUrl, Qt, QTime, pyqtSlot
@@ -135,10 +135,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def get_audio_list(self):
         self.hidden_tracks.clear()
         if self.saveData.isChecked():
-            with open(self.config, 'wb') as d:
-                data = self.login.text() + '|' + self.password.text() + '|' + self.user_link.text()
-                data_encrypted = codecs.encode(bytes(data, 'utf-8'), 'hex')
-                d.write(codecs.encode(data_encrypted, 'base64'))
+            data = self.login.text() + '|' + self.password.text() + '|' + self.user_link.text()
+            keyring.set_password('vk_music_downloader', os.getlogin(), data)
         self.get_audio_thread.login = self.login.text()
         self.get_audio_thread.password = self.password.text()
         self.get_audio_thread.user_link = self.user_link.text()

@@ -2,3 +2,5 @@ PyQt5
 vk_api==11.6.1
 bs4
 wget
+keyring
+dbus-python; sys_platform == 'linux'

@@ -2,9 +2,10 @@
 
 # Form implementation generated from reading ui file 'gui/about_dialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.1
+# Created by: PyQt5 UI code generator 5.14.0
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -86,6 +87,4 @@ class Ui_aboutDialog(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Noto Sans\'; font-weight:600;\">Адриан Поляков: </span><a href=\"https://tlg.name/QwertyAdrian\"><span style=\" font-family:\'Noto Sans\'; text-decoration: underline; color:#009dff;\">Telegram</span></a><span style=\" font-family:\'Noto Sans\';\">, </span><a href=\"mailto:qwertyadrian@yandex.ru\"><span style=\" font-family:\'Noto Sans\'; text-decoration: underline; color:#009dff;\">Email</span></a></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Noto Sans\';\"><br /></p></body></html>"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("aboutDialog", "Автор"))
-
-
 from gui import audio_res
