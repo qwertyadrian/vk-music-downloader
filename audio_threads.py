@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright (C) 2019 Adrian Polyakov
+#  Copyright (C) 2019-2020 Adrian Polyakov
 #
 #  This file is part of VkMusic Downloader
 #
@@ -18,7 +18,7 @@
 #  along with this program. If not, see http://www.gnu.org/licenses/
 import os
 import os.path
-from re import sub
+from re import sub, findall
 from collections import Counter
 
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -37,45 +37,42 @@ class GetAudioListThread(QThread):
         self.password = ''
         self.user_link = ''
         self.statusInfo = None
+        self.authorized = False
         self.cookie = cookie
         self.window = window
 
     def __del__(self):
         self.wait()
 
-    def _get_user_audio(self, user_login, user_password, userlink):
-        string = ''
-        session = VkApi(login=user_login, password=user_password, auth_handler=self.auth_handler,
-                        config_filename=self.cookie)
+    def _user_auth(self):
+        self.session = VkApi(login=self.login, password=self.password, auth_handler=self.auth_handler,
+                             config_filename=self.cookie)
         self.statusInfo.setText('Авторизация.')
-        session.auth()
-        api_vk = session.get_api()
-        vk_audio = VkAudio(session)
-        session.http.cookies.update(dict(remixmdevice='1920/1080/1/!!-!!!!'))
-        user_id = userlink.replace('https://vk.com/', '').replace('https://m.vk.com/', '')
-        if not user_id:
-            user_id = None
+        self.session.auth()
+        self.session.http.cookies.update(dict(remixmdevice='1920/1080/1/!!-!!!!'))
+        self.vk_audio = VkAudio(self.session)
+        self.authorized = True
+
+    def _get_audio(self):
+        user_id = self.get_user_id(self.user_link)
         # noinspection PyBroadException
         try:
-            id = api_vk.users.get(user_ids=user_id)[0]
-            self.statusInfo.setText('Получение списка аудиозаписей пользователя: {} {}'.format(id['first_name'],
-                                                                                               id['last_name']))
+            id = self.session.method('users.get', dict(user_ids=user_id))[0]
+            self.statusInfo.setText(
+                'Получение списка аудиозаписей пользователя: {} {}'.format(id['first_name'], id['last_name']))
             string = 'Музыка пользователя: {} {}'.format(id['first_name'], id['last_name'])
         except Exception:
-            id = None
-        if not id:
-            group_id = api_vk.groups.getById(group_id=user_id)[0]
+            group_id = self.session.method('groups.getById', dict(group_id=user_id))[0]
             self.statusInfo.setText('Получение списка аудиозаписей сообщества: {}'.format(group_id['name']))
             string = 'Музыка сообщества: {}'.format(group_id['name'])
-            albums = vk_audio.get_albums(-group_id['id'])
-            tracks = vk_audio.get(-group_id['id'])
+            albums = self.vk_audio.get_albums(-group_id['id'])
+            tracks = self.vk_audio.get(-group_id['id'])
         else:
-            albums = vk_audio.get_albums(id['id'])
-            tracks = vk_audio.get(id['id'])
+            albums = self.vk_audio.get_albums(id['id'])
+            tracks = self.vk_audio.get(id['id'])
         for album in albums:
-            album['tracks'] = vk_audio.get(owner_id=album['owner_id'],
-                                           album_id=album['id'],
-                                           access_hash=album['access_hash'])
+            album['tracks'] = self.vk_audio.get(owner_id=album['owner_id'], album_id=album['id'],
+                                                access_hash=album['access_hash'])
         # Removing duplicates
         names = []
         for track in tracks:
@@ -88,7 +85,7 @@ class GetAudioListThread(QThread):
                     if track['artist'] == i[0] and track['title'] == i[1]:
                         tracks.remove(track)
                         break
-
+        # Sorting tracks
         tracks.sort(key=lambda d: d['artist'])
         return tracks, string, albums
 
@@ -104,7 +101,9 @@ class GetAudioListThread(QThread):
 
     def run(self):
         try:
-            result = self._get_user_audio(self.login, self.password, self.user_link)
+            if not self.authorized:
+                self._user_auth()
+            result = self._get_audio()
             self.signal.emit(result)
         except exceptions.BadPassword:
             self.signal.emit('Неверный логин или пароль.')
@@ -123,6 +122,16 @@ class GetAudioListThread(QThread):
                 self.signal.emit(str(e))
         except Exception as e:
             self.signal.emit(str(type(e)) + str(e))
+
+    @staticmethod
+    def get_user_id(link):
+        result = findall(r"(http?://??vk\.com/)?(.*)$", link)[0][1]
+        return result if result else None
+
+    @staticmethod
+    def get_group_and_post_id(link):
+        result = findall(r"wall(.*?)_(.*?)$", link)
+        return result[0] if result else None
 
 
 class DownloadAudio(QThread):
