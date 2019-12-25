@@ -23,7 +23,7 @@ from collections import Counter
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from vk_api import VkApi, exceptions
-from vk_api.audio import VkAudio
+from vk_api.audio import VkAudio, scrap_data
 from wget import download
 
 
@@ -54,22 +54,39 @@ class GetAudioListThread(QThread):
         self.authorized = True
 
     def _get_audio(self):
+        tracks = []
+        albums = []
+        string = str()
+        # Try to get post audio list
+        result = self.get_group_and_post_id(self.user_link)
+        if isinstance(result, tuple):
+            owner_id, post_id = result
+            link = 'https://m.vk.com/wall{}_{}'.format(owner_id, post_id)
+            self.statusInfo.setText('Получение списка аудиозаписей поста.')
+            string = 'Аудиозаписи поста'
+            response = self.session.http.get(link)
+            tracks = scrap_data(response.text, self.vk_audio.user_id, filter_root_el={'class': 'audios_list'})
+
         user_id = self.get_user_id(self.user_link)
-        # noinspection PyBroadException
-        try:
-            id = self.session.method('users.get', dict(user_ids=user_id))[0]
-            self.statusInfo.setText(
-                'Получение списка аудиозаписей пользователя: {} {}'.format(id['first_name'], id['last_name']))
-            string = 'Музыка пользователя: {} {}'.format(id['first_name'], id['last_name'])
-        except Exception:
-            group_id = self.session.method('groups.getById', dict(group_id=user_id))[0]
-            self.statusInfo.setText('Получение списка аудиозаписей сообщества: {}'.format(group_id['name']))
-            string = 'Музыка сообщества: {}'.format(group_id['name'])
-            albums = self.vk_audio.get_albums(-group_id['id'])
-            tracks = self.vk_audio.get(-group_id['id'])
-        else:
-            albums = self.vk_audio.get_albums(id['id'])
-            tracks = self.vk_audio.get(id['id'])
+        # Try to get user or group audio list
+        if not tracks:
+            # noinspection PyBroadException
+            try:
+                owner_id = self.session.method('users.get', dict(user_ids=user_id))[0]
+                self.statusInfo.setText(
+                    'Получение списка аудиозаписей пользователя: {} {}'.format(owner_id['first_name'],
+                                                                               owner_id['last_name']))
+                string = 'Музыка пользователя: {} {}'.format(owner_id['first_name'],
+                                                             owner_id['last_name'])
+            except Exception:
+                group_id = self.session.method('groups.getById', dict(group_id=user_id))[0]
+                self.statusInfo.setText('Получение списка аудиозаписей сообщества: {}'.format(group_id['name']))
+                string = 'Музыка сообщества: {}'.format(group_id['name'])
+                albums = self.vk_audio.get_albums(-group_id['id'])
+                tracks = self.vk_audio.get(-group_id['id'])
+            else:
+                albums = self.vk_audio.get_albums(owner_id['id'])
+                tracks = self.vk_audio.get(owner_id['id'])
         for album in albums:
             album['tracks'] = self.vk_audio.get(owner_id=album['owner_id'], album_id=album['id'],
                                                 access_hash=album['access_hash'])
