@@ -37,6 +37,7 @@ class GetAudioListThread(QThread):
         self.password = ''
         self.user_link = ''
         self.statusInfo = None
+        self.save_password = False
         self.authorized = False
         self.cookie = cookie
         self.window = window
@@ -114,7 +115,7 @@ class GetAudioListThread(QThread):
         self.str_signal.emit('Введите код авторизации:')
         while not self.window.key:
             pass
-        return self.window.key, True
+        return self.window.key, self.save_password
 
     def run(self):
         try:

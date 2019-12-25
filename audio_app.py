@@ -138,10 +138,13 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if self.saveData.isChecked():
             data = self.login.text() + '|' + self.password.text() + '|' + self.user_link.text()
             keyring.set_password('vk_music_downloader', os.getlogin(), data)
+        else:
+            keyring.delete_password('vk_music_downloader', os.getlogin())
         self.get_audio_thread.login = self.login.text()
         self.get_audio_thread.password = self.password.text()
         self.get_audio_thread.user_link = self.user_link.text()
         self.get_audio_thread.statusInfo = self.statusInfo
+        self.get_audio_thread.saveData = self.saveData.isChecked()
         self.toggle_buttons(False)
         self.btnConfirm.setEnabled(False)
         self.trackList.clear()

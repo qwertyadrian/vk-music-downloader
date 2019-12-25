@@ -40,6 +40,8 @@ if __name__ == '__main__':
     data = keyring.get_password('vk_music_downloader', os.getlogin())
     if isinstance(data, str):
         info = data.split('|')
+    else:
+        info = None
     if not os.path.exists(home):
         os.mkdir(home)
     ui()
