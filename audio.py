@@ -27,7 +27,7 @@ from audio_app import VkAudioApp
 
 def ui():
     app = QtWidgets.QApplication(sys.argv)
-    window = VkAudioApp(info, config, cookie)
+    window = VkAudioApp(info, cookie)
     window.show()
     app.exec_()
 
@@ -36,7 +36,6 @@ if __name__ == '__main__':
     home = os.path.join(os.path.expanduser('~'), '.vk_downloader')
     if not os.path.exists(os.path.dirname(home)):
         home = tempfile.TemporaryDirectory()
-    config = os.path.join(home, '.config.ini')
     cookie = os.path.join(home, 'vk_cookies.json')
     data = keyring.get_password('vk_music_downloader', os.getlogin())
     if isinstance(data, str):

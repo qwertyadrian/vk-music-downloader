@@ -32,7 +32,7 @@ from audio_threads import DownloadAudio, GetAudioListThread
 
 # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
 class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
-    def __init__(self, info, config, cookie):
+    def __init__(self, info, cookie):
         super().__init__()
         self.setupUi(self)
 
@@ -41,7 +41,6 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
 
         self.__title__ = self.windowTitle()
 
-        self.config = config
         self.start_dir = os.getcwd()
         self.clipboard = QtWidgets.qApp.clipboard()
         try:
@@ -118,10 +117,12 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.password.setText(info[1])
             self.user_link.setText(info[2])
 
-        if ('\\Temp\\' or '/tmp/') in (cookie or config):
-            message = 'Не удалось создать папку для хранения настроек приложения по пути\n{}\n\n' \
+        if '\\Temp\\' in cookie or '/tmp/' in cookie:
+            message = 'Не удалось создать папку для хранения куки приложения по пути\n{}\n\n' \
                       'Была создана временная папка. После закрытия приложения она будет удалена. ' \
-                      'В следствии этого, сохранение введенных данных работать не будет'.format(os.path.dirname(cookie))
+                      'В следствии этого, при авторизации, если включено, ' \
+                      'после перезапуска приложения будет повторно запрошен ' \
+                      'код подтверждения входа'.format(os.path.dirname(cookie))
             QtWidgets.QMessageBox.warning(self, 'Предупреждение', message)
 
         self.hidden_tracks = []
