@@ -1,0 +1,172 @@
+/*
+ * Copyright (C) 2018-2020 Adrian Polyakov
+ *
+ * This file is part of VkMusic Downloader
+ * VkMusic Downloader is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/
+ */
+
+/*noinspection ALL*/
+QPlainTextEdit,QSpinBox,QTimeEdit,QLineEdit {
+    color: rgb(238, 255, 255);
+}
+
+/*noinspection ALL*/
+QLineEdit {
+    padding: 3px;
+    border-width: 1px;
+    border-color: #cccccc;
+    border-style: solid;
+    font-weight: normal;
+    font-family: sans-serif;
+}
+
+/*noinspection ALL*/
+QWidget {
+    background: rgb(33, 33, 33);
+}
+
+/*noinspection ALL*/
+QLabel, QCheckBox {
+    color:#e8f9f9;
+}
+
+/*noinspection ALL*/
+QPushButton {
+    background-color: rgb(60, 60, 60);
+    border: none;
+    color: rgb(138, 138, 138);
+}
+
+/*noinspection ALL*/
+QProgressBar {
+    border: 2px solid grey;
+    border-radius: 5px;
+}
+
+/*noinspection ALL*/
+QProgressBar::chunk {
+    background-color: #ff9900;
+    width: 20px;
+}
+
+/*noinspection ALL*/
+QMenuBar {
+    background-color: rgb(33, 33, 33);
+    color: white;
+}
+
+/*noinspection ALL*/
+QMenuBar::item {
+    spacing: 3px; /* spacing between menu bar items */
+    padding: 1px 4px;
+    background: transparent;
+    border-radius: 4px;
+}
+
+/*noinspection ALL*/
+QMenuBar::item:selected { /* when selected using mouse or keyboard */
+    background: #a8a8a8;
+}
+
+/*noinspection ALL*/
+QMenuBar::item:pressed {
+    background: #888888;
+}
+
+/*noinspection ALL*/
+QMenu:enabled {
+    color: rgb(238, 255, 255);
+}
+
+/*noinspection ALL*/
+QMenu:selected {
+    background: #a8a8a8;
+}
+
+/*noinspection ALL*/
+QTreeView {
+    background-color: rgb(69, 69, 69);
+}
+
+/*noinspection ALL*/
+QTreeView::item {
+    /*border-top-color: transparent;*/
+    /*border-bottom-color: transparent;*/
+    color: white;
+}
+
+/*noinspection ALL*/
+QTreeView::branch {
+        background: rgb(69, 69, 69);
+}
+
+/*noinspection ALL*/
+QTreeView::branch:has-children:!has-siblings:closed, QTreeView::branch:closed:has-children:has-siblings {
+        image: url(src/branch-closed.png);
+}
+
+/*noinspection ALL*/
+QTreeView::branch:open:has-children:!has-siblings, QTreeView::branch:open:has-children:has-siblings  {
+        image: url(src/branch-open.png);
+}
+
+/*noinspection ALL*/
+QStatusBar {
+    color: rgb(238, 255, 255);
+}
+
+/*noinspection ALL*/
+QCheckBox::indicator:unchecked {
+    image: url(src/unchecked.png);
+}
+
+/*noinspection ALL*/
+QCheckBox::indicator:unchecked:hover {
+    image: url(src/unchecked_hover.png);
+}
+
+/*noinspection ALL*/
+QCheckBox::indicator:checked {
+    image: url(src/checked.png);
+}
+
+/*noinspection ALL*/
+QScrollBar {
+    background: rgb(69, 69, 69);
+}
+
+/*noinspection ALL*/
+QScrollBar::down-arrow {
+    image: url(src/branch-open.png);
+}
+
+/*noinspection ALL*/
+QScrollBar:up-arrow {
+    image: url(src/branch-open-180.png);
+}
+
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+    margin: 2px 0;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);
+    border: 1px solid #5c5c5c;
+    width: 18px;
+    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 3px;
+}
