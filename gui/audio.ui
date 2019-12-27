@@ -37,7 +37,7 @@
    <widget class="QLineEdit" name="login">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>420</x>
       <y>10</y>
       <width>181</width>
       <height>31</height>
@@ -47,7 +47,7 @@
    <widget class="QLabel" name="login_text">
     <property name="geometry">
      <rect>
-      <x>70</x>
+      <x>120</x>
       <y>10</y>
       <width>291</width>
       <height>31</height>
@@ -68,7 +68,7 @@
    <widget class="QLabel" name="password_text">
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>350</x>
       <y>50</y>
       <width>61</width>
       <height>31</height>
@@ -89,7 +89,7 @@
    <widget class="QLineEdit" name="password">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>420</x>
       <y>50</y>
       <width>181</width>
       <height>31</height>
@@ -114,9 +114,9 @@
    <widget class="QLabel" name="link_text">
     <property name="geometry">
      <rect>
-      <x>9</x>
+      <x>10</x>
       <y>90</y>
-      <width>351</width>
+      <width>401</width>
       <height>31</height>
      </rect>
     </property>
@@ -126,7 +126,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Ссылка на профиль (пост) пользователя (сообщества):</string>
+     <string>Ссылка на профиль (пост, альбом) пользователя (сообщества):</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -135,7 +135,7 @@
    <widget class="QLineEdit" name="user_link">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>420</x>
       <y>90</y>
       <width>181</width>
       <height>31</height>
@@ -188,7 +188,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>560</x>
+      <x>610</x>
       <y>90</y>
       <width>111</width>
       <height>27</height>

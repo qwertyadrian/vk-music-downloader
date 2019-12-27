@@ -29,6 +29,7 @@ class Ui_aboutDialog(object):
         self.tab.setObjectName("tab")
         self.textBrowser = QtWidgets.QTextBrowser(self.tab)
         self.textBrowser.setGeometry(QtCore.QRect(-3, -3, 460, 251))
+        self.textBrowser.setSource(QtCore.QUrl("qrc:/html/about.html"))
         self.textBrowser.setOpenExternalLinks(True)
         self.textBrowser.setObjectName("textBrowser")
         self.tabWidget.addTab(self.tab, "")
@@ -60,31 +61,23 @@ class Ui_aboutDialog(object):
     def retranslateUi(self, aboutDialog):
         _translate = QtCore.QCoreApplication.translate
         aboutDialog.setWindowTitle(_translate("aboutDialog", "О программе"))
-        self.textBrowser.setHtml(_translate("aboutDialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><title>О программе</title><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Noto Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Noto Sans\';\">VkMusic Downloader - программа для скачивания аудиозаписей из ВКонтакте</span></p>\n"
-"<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"https://github.com/qwertyadrian/vk-music-downloader\"><span style=\" font-family:\'Noto Sans\'; text-decoration: underline; color:#009dff;\">https://github.com/qwertyadrian/vk-music-downloader</span></a></p>\n"
-"<p align=\"justify\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Noto Sans\';\"><br />Copyright (C) 2019 Adrian Polyakov<br /><br />This program is free software: you can redistribute it and/or modify<br />it under the terms of the GNU General Public License as published by<br />the Free Software Foundation, either version 3 of the License, or<br />(at your option) any later version.<br /><br />This program is distributed in the hope that it will be useful,<br />but WITHOUT ANY WARRANTY; without even the implied warranty of<br />MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the<br />GNU General Public License for more details.</span></p></body></html>"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("aboutDialog", "О программе"))
         self.textBrowser_2.setHtml(_translate("aboutDialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Noto Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Noto Sans\';\"><br /></p>\n"
-"<ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" font-family:\'Noto Sans\';\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">PyQt5 версии 5.12.1</li>\n"
-"<li style=\" font-family:\'Noto Sans\';\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">vk_api версии 11.5.1</li>\n"
-"<li style=\" font-family:\'Noto Sans\';\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">wget версии 3.2</li>\n"
-"<li style=\" font-family:\'Noto Sans\';\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">beautifulsoup версии 4.7.1</li></ul></body></html>"))
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
+"<ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">PyQt5 версии 5.14.0</li>\n"
+"<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">vk_api версии 11.6.1</li>\n"
+"<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">wget версии 3.2</li>\n"
+"<li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">beautifulsoup версии 4.8.1</li></ul></body></html>"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("aboutDialog", "Библиотеки"))
         self.textBrowser_3.setHtml(_translate("aboutDialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Noto Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Noto Sans\';\">По вопросам работы программы обращаться на </span><a href=\"https://github.com/qwertyadrian/vk-music-downloader/issues\"><span style=\" font-family:\'Noto Sans\'; text-decoration: underline; color:#009dff;\">GitHub Issues</span></a></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Noto Sans\';\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Noto Sans\'; font-weight:600;\">Адриан Поляков: </span><a href=\"https://tlg.name/QwertyAdrian\"><span style=\" font-family:\'Noto Sans\'; text-decoration: underline; color:#009dff;\">Telegram</span></a><span style=\" font-family:\'Noto Sans\';\">, </span><a href=\"mailto:qwertyadrian@yandex.ru\"><span style=\" font-family:\'Noto Sans\'; text-decoration: underline; color:#009dff;\">Email</span></a></p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:\'Noto Sans\';\"><br /></p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600;\">Адриан Поляков: </span><a href=\"https://tlg.name/QwertyAdrian\"><span style=\" text-decoration: underline; color:#009dff;\">Telegram</span></a>, <a href=\"mailto:admin@qwertyadrian.ru\"><span style=\" text-decoration: underline; color:#009dff;\">Email</span></a></p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; text-decoration: underline; color:#009dff;\"><br /></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">По вопросам работы программы обращаться на <a href=\"https://github.com/qwertyadrian/vk-music-downloader/issues\"><span style=\" text-decoration: underline; color:#009dff;\">GitHub Issues</span></a></p></body></html>"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("aboutDialog", "Автор"))
 from gui import audio_res

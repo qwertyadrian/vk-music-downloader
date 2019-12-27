@@ -20,6 +20,7 @@ import os.path
 from random import choice
 
 import keyring
+import keyring.errors
 from PyQt5 import QtWidgets
 from PyQt5 import Qt
 from PyQt5.QtCore import QUrl, Qt, QTime, pyqtSlot
@@ -139,7 +140,10 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             data = self.login.text() + '|' + self.password.text() + '|' + self.user_link.text()
             keyring.set_password('vk_music_downloader', os.getlogin(), data)
         else:
-            keyring.delete_password('vk_music_downloader', os.getlogin())
+            try:
+                keyring.delete_password('vk_music_downloader', os.getlogin())
+            except keyring.errors.PasswordDeleteError:
+                pass  # Пароль не был сохранен ранее, поэтому удалять нечего
         self.get_audio_thread.login = self.login.text()
         self.get_audio_thread.password = self.password.text()
         self.get_audio_thread.user_link = self.user_link.text()
@@ -188,10 +192,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if directory and self.tracks and self.string:
             if not directory.endswith('.txt'):
                 directory += '.txt'
-            with open(directory, 'w', encoding='utf-8') as d:
-                print('{}, {} шт.\n'.format(self.string, len(self.tracks)), file=d)
-                for track in self.tracks:
-                    print('%(artist)s - %(title)s: %(link)s\n' % track, file=d)
+            self._save_audio_list(directory)
             self.statusInfo.setText('Список аудиозаписей сохранен в файл {}'.format(directory))
 
     @pyqtSlot()
@@ -202,10 +203,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if directory and self.tracks and self.string:
             if not directory.endswith('.txt'):
                 directory += '.txt'
-            with open(directory, 'w', encoding='utf-8') as d:
-                print('{}, {} шт.\n'.format(self.string, len(self.tracks)), file=d)
-                for track in self.tracks:
-                    print('%(artist)s - %(title)s' % track, file=d)
+            self._save_audio_list(directory, save_links=False)
             self.statusInfo.setText(
                 'Список аудиозаписей (без ссылок на скачивание) сохранен в файл {}'.format(directory))
 
@@ -366,6 +364,26 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                         selected_tracks.append(track)
                         break
         return selected_tracks
+
+    def _save_audio_list(self, directory, save_links=True):
+        with open(directory, 'w', encoding='utf-8') as d:
+            print('{}, {} шт.'.format(self.string, len(self.tracks)), file=d, end=' ')
+            if self.albums:
+                print('{} альбомов\n'.format(len(self.albums)), file=d)
+            else:
+                print('\n', file=d, end='')
+            for track in self.tracks:
+                if save_links:
+                    print('%(artist)s - %(title)s: %(url)s\n' % track, file=d)
+                else:
+                    print('%(artist)s - %(title)s' % track, file=d)
+            for album in self.albums:
+                print('\nАльбом %(title)s:\n' % album, file=d)
+                for track in album['tracks']:
+                    if save_links:
+                        print('    %(artist)s - %(title)s: %(url)s\n' % track, file=d)
+                    else:
+                        print('    %(artist)s - %(title)s' % track, file=d)
 
     @pyqtSlot()
     def _pause(self):

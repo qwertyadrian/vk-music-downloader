@@ -59,18 +59,23 @@ class GetAudioListThread(QThread):
         albums = []
         string = str()
         # Try to get post audio list
-        result = self.get_group_and_post_id(self.user_link)
-        if isinstance(result, tuple):
-            owner_id, post_id = result
+        post = self.get_group_and_post_id(self.user_link)
+        album = self.get_album_id(self.user_link)
+        if isinstance(post, tuple):
+            owner_id, post_id = post
             link = 'https://m.vk.com/wall{}_{}'.format(owner_id, post_id)
             self.statusInfo.setText('Получение списка аудиозаписей поста.')
             string = 'Аудиозаписи поста'
             response = self.session.http.get(link)
             tracks = scrap_data(response.text, self.vk_audio.user_id, filter_root_el={'class': 'audios_list'})
-
-        user_id = self.get_user_id(self.user_link)
-        # Try to get user or group audio list
-        if not tracks:
+        elif isinstance(album, tuple):
+            owner_id, album_id, access_hash = album
+            self.statusInfo.setText('Получение списка аудиозаписей альбома.')
+            string = 'Аудиозаписи альбома'
+            tracks = self.vk_audio.get(owner_id, album_id, access_hash)
+        else:
+            user_id = self.get_user_id(self.user_link)
+            # Try to get user or group audio list
             # noinspection PyBroadException
             try:
                 owner_id = self.session.method('users.get', dict(user_ids=user_id))[0]
@@ -143,12 +148,24 @@ class GetAudioListThread(QThread):
 
     @staticmethod
     def get_user_id(link):
-        result = findall(r"(http?://??vk\.com/)?(.*)$", link)[0][1]
+        result = findall(r"(https?://m?\.?vk\.com/)?(.*)$", link)[0][1]
         return result if result else None
 
     @staticmethod
     def get_group_and_post_id(link):
         result = findall(r"wall(.*?)_(.*?)$", link)
+        return result[0] if result else None
+
+    @staticmethod
+    def get_album_id(link):
+        link = link.replace('%2F', '/')
+        result = findall(r"album/(.*)_(.*)_(.*)\?", link)
+        if not result:
+            result = findall(r"album/(.*)_(.*)_(.*)", link)
+        if not result:
+            result = findall(r"audio_playlist(.*)_(.*)&access_hash=(.*)", link)
+        if not result:
+            result = findall(r"audio_playlist(.*)_(.*)/(.*)", link)
         return result[0] if result else None
 
 
