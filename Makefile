@@ -7,4 +7,4 @@ generate_ui: generate_resorces
 	pyuic5 gui/about_dialog.ui --import-from=gui -o gui/about_dialog.py --resource-suffix=
 
 build: generate_ui
-	pyinstaller -F -w -i src/logo.ico audio.py
+	pyinstaller -F -w -i gui/resources/images/logo.ico audio.py --additional-hooks-dir hooks

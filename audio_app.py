@@ -19,8 +19,6 @@
 import os.path
 from random import choice
 
-import keyring
-import keyring.errors
 from PyQt5 import QtWidgets
 from PyQt5 import Qt
 from PyQt5.QtCore import QUrl, Qt, QTime, pyqtSlot
@@ -33,7 +31,7 @@ from audio_threads import DownloadAudio, GetAudioListThread
 
 # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
 class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
-    def __init__(self, info, cookie):
+    def __init__(self, info, cookie, keyring):
         super().__init__()
         self.setupUi(self)
 
@@ -41,6 +39,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.about = AboutDialog(self)
 
         self.__title__ = self.windowTitle()
+
+        self.keyring = keyring
 
         self.start_dir = os.getcwd()
         self.clipboard = QtWidgets.qApp.clipboard()
@@ -138,12 +138,9 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.hidden_tracks.clear()
         if self.saveData.isChecked():
             data = self.login.text() + '|' + self.password.text() + '|' + self.user_link.text()
-            keyring.set_password('vk_music_downloader', os.getlogin(), data)
+            self.keyring.set_password('vk_music_downloader', os.getlogin(), data)
         else:
-            try:
-                keyring.delete_password('vk_music_downloader', os.getlogin())
-            except keyring.errors.PasswordDeleteError:
-                pass  # Пароль не был сохранен ранее, поэтому удалять нечего
+            self.keyring.delete_password('vk_music_downloader', os.getlogin())
         self.get_audio_thread.login = self.login.text()
         self.get_audio_thread.password = self.password.text()
         self.get_audio_thread.user_link = self.user_link.text()

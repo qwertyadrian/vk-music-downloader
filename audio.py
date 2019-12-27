@@ -17,7 +17,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
-import keyring
+from keyrings.cryptfile.cryptfile import CryptFileKeyring
 import os.path
 import sys
 import tempfile
@@ -27,12 +27,14 @@ from audio_app import VkAudioApp
 
 def ui():
     app = QtWidgets.QApplication(sys.argv)
-    window = VkAudioApp(info, cookie)
+    window = VkAudioApp(info, cookie, keyring)
     window.show()
     app.exec_()
 
 
 if __name__ == '__main__':
+    keyring = CryptFileKeyring()
+    keyring.keyring_key = os.getlogin()
     home = os.path.join(os.path.expanduser('~'), '.vk_downloader')
     if not os.path.exists(os.path.dirname(home)):
         home = tempfile.TemporaryDirectory()

@@ -37,7 +37,7 @@
    <widget class="QLineEdit" name="login">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>440</x>
       <y>10</y>
       <width>181</width>
       <height>31</height>
@@ -47,7 +47,7 @@
    <widget class="QLabel" name="login_text">
     <property name="geometry">
      <rect>
-      <x>120</x>
+      <x>140</x>
       <y>10</y>
       <width>291</width>
       <height>31</height>
@@ -68,7 +68,7 @@
    <widget class="QLabel" name="password_text">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>370</x>
       <y>50</y>
       <width>61</width>
       <height>31</height>
@@ -89,7 +89,7 @@
    <widget class="QLineEdit" name="password">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>440</x>
       <y>50</y>
       <width>181</width>
       <height>31</height>
@@ -116,7 +116,7 @@
      <rect>
       <x>10</x>
       <y>90</y>
-      <width>401</width>
+      <width>421</width>
       <height>31</height>
      </rect>
     </property>
@@ -126,7 +126,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Ссылка на профиль (пост, альбом) пользователя (сообщества):</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10.5pt;&quot;&gt;Ссылка на профиль (пост, альбом) пользователя (сообщества):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -135,7 +135,7 @@
    <widget class="QLineEdit" name="user_link">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>440</x>
       <y>90</y>
       <width>181</width>
       <height>31</height>
@@ -188,7 +188,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>610</x>
+      <x>630</x>
       <y>90</y>
       <width>111</width>
       <height>27</height>
@@ -426,7 +426,7 @@
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>30</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="music_menu">
