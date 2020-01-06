@@ -1,4 +1,5 @@
-# VkMusic Downloader
+VkMusic Downloader ![python 3.5+](https://img.shields.io/badge/python-3.5%2B-blue) ![GPL-3.0](https://img.shields.io/github/license/qwertyadrian/vk-music-downloader)
+======================================================================================
 Программа для скачивания музыки пользователей (сообществ) ВКонтакте
 
 ### Системные требования:
