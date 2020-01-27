@@ -23,7 +23,7 @@ from collections import Counter
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from vk_api import VkApi, exceptions
-from vk_api.audio import VkAudio, scrap_data
+from vk_api.audio import VkAudio
 from wget import download
 
 
@@ -63,11 +63,9 @@ class GetAudioListThread(QThread):
         album = self.get_album_id(self.user_link)
         if isinstance(post, tuple):
             owner_id, post_id = post
-            link = 'https://m.vk.com/wall{}_{}'.format(owner_id, post_id)
             self.statusInfo.setText('Получение списка аудиозаписей поста.')
             string = 'Аудиозаписи поста'
-            response = self.session.http.get(link)
-            tracks = scrap_data(response.text, self.vk_audio.user_id, filter_root_el={'class': 'audios_list'})
+            tracks = self.vk_audio.get_post_audio(owner_id, post_id)
         elif isinstance(album, tuple):
             owner_id, album_id, access_hash = album
             self.statusInfo.setText('Получение списка аудиозаписей альбома.')
