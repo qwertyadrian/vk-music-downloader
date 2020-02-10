@@ -41,6 +41,7 @@ class GetAudioListThread(QThread):
         self.authorized = False
         self.cookie = cookie
         self.window = window
+        self.sort_tracks = None
 
     def __del__(self):
         self.wait()
@@ -107,7 +108,8 @@ class GetAudioListThread(QThread):
                         tracks.remove(track)
                         break
         # Sorting tracks
-        tracks.sort(key=lambda d: d['artist'])
+        if self.sort_tracks:
+            tracks.sort(key=lambda d: d['artist'])
         return tracks, string, albums
 
     def auth_handler(self):

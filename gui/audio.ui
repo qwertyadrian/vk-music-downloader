@@ -229,9 +229,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>180</y>
+      <y>165</y>
       <width>161</width>
-      <height>16</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="font">
@@ -419,6 +419,22 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
+   <widget class="QCheckBox" name="sort_tracks">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>120</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Упорядочить список в алфавитном порядке по имени исполнителя?</string>
+    </property>
+    <property name="text">
+     <string>Сортировать</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -426,7 +442,7 @@
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>20</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="music_menu">

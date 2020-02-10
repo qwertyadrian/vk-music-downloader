@@ -150,6 +150,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.get_audio_thread.user_link = self.user_link.text()
         self.get_audio_thread.statusInfo = self.statusInfo
         self.get_audio_thread.saveData = self.saveData.isChecked()
+        self.get_audio_thread.sort_tracks = self.sort_tracks.isChecked()
         self.toggle_buttons(False)
         self.btnConfirm.setEnabled(False)
         self.trackList.clear()
@@ -327,6 +328,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.saveData.setEnabled(state)
         self.search.setEnabled(state)
         self.btnConfirm.setEnabled(state)
+        self.sort_tracks.setEnabled(state)
 
     @pyqtSlot(str)
     def auth_handler(self, result):
