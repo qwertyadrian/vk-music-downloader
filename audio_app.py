@@ -24,6 +24,7 @@ from PyQt5 import Qt
 from PyQt5.QtCore import QUrl, Qt, QTime, pyqtSlot
 from PyQt5.QtGui import QIcon
 from PyQt5.QtMultimedia import *
+from keyring.errors import PasswordDeleteError
 
 from gui import audio_gui, help_dialog, about_dialog
 from audio_threads import DownloadAudio, GetAudioListThread
@@ -140,7 +141,10 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             data = self.login.text() + '|' + self.password.text() + '|' + self.user_link.text()
             self.keyring.set_password('vk_music_downloader', os.getlogin(), data)
         else:
-            self.keyring.delete_password('vk_music_downloader', os.getlogin())
+            try:
+                self.keyring.delete_password('vk_music_downloader', os.getlogin())
+            except PasswordDeleteError:
+                pass
         self.get_audio_thread.login = self.login.text()
         self.get_audio_thread.password = self.password.text()
         self.get_audio_thread.user_link = self.user_link.text()

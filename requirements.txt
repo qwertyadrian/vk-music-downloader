@@ -3,3 +3,4 @@ vk_api==11.7.0
 bs4
 wget
 keyrings.cryptfile
+keyring
