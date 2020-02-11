@@ -189,8 +189,8 @@
     <property name="geometry">
      <rect>
       <x>630</x>
-      <y>90</y>
-      <width>111</width>
+      <y>60</y>
+      <width>110</width>
       <height>27</height>
      </rect>
     </property>
@@ -220,27 +220,6 @@
     </property>
     <property name="wordWrap">
      <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_4">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>165</y>
-      <width>161</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>11</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Список аудиозаписей:</string>
     </property>
    </widget>
    <widget class="QProgressBar" name="progressBar">
@@ -302,36 +281,6 @@
     <property name="text">
      <string>Прогресс скачивания:</string>
     </property>
-   </widget>
-   <widget class="QTreeWidget" name="trackList">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>200</y>
-      <width>761</width>
-      <height>211</height>
-     </rect>
-    </property>
-    <property name="contextMenuPolicy">
-     <enum>Qt::CustomContextMenu</enum>
-    </property>
-    <property name="editTriggers">
-     <set>QAbstractItemView::NoEditTriggers</set>
-    </property>
-    <property name="selectionMode">
-     <enum>QAbstractItemView::ExtendedSelection</enum>
-    </property>
-    <attribute name="headerVisible">
-     <bool>false</bool>
-    </attribute>
-    <column>
-     <property name="text">
-      <string>Аудиозаписи</string>
-     </property>
-    </column>
    </widget>
    <widget class="QLineEdit" name="search">
     <property name="geometry">
@@ -419,21 +368,118 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QCheckBox" name="sort_tracks">
+   <widget class="QToolButton" name="sort_tracks">
     <property name="geometry">
      <rect>
       <x>630</x>
-      <y>120</y>
-      <width>111</width>
-      <height>31</height>
+      <y>90</y>
+      <width>110</width>
+      <height>35</height>
      </rect>
     </property>
-    <property name="toolTip">
-     <string>Упорядочить список в алфавитном порядке по имени исполнителя?</string>
-    </property>
     <property name="text">
-     <string>Сортировать</string>
+     <string>Сортировка</string>
     </property>
+    <property name="popupMode">
+     <enum>QToolButton::InstantPopup</enum>
+    </property>
+    <property name="toolButtonStyle">
+     <enum>Qt::ToolButtonTextOnly</enum>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>190</y>
+      <width>761</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tracks_tab">
+     <attribute name="title">
+      <string>Аудиозаписи</string>
+     </attribute>
+     <widget class="QTreeWidget" name="trackList">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>757</width>
+        <height>189</height>
+       </rect>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <property name="headerHidden">
+       <bool>true</bool>
+      </property>
+      <property name="columnCount">
+       <number>2</number>
+      </property>
+      <attribute name="headerVisible">
+       <bool>false</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>artist - name</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>name - artist</string>
+       </property>
+      </column>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="playlists_tab">
+     <attribute name="title">
+      <string>Плейлисты</string>
+     </attribute>
+     <widget class="QTreeWidget" name="albumsList">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>757</width>
+        <height>189</height>
+       </rect>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <attribute name="headerVisible">
+       <bool>false</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Плейлист</string>
+       </property>
+      </column>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

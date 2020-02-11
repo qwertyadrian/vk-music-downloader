@@ -72,21 +72,23 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.aboutDialog.triggered.connect(self.about.show)
         self.exit.triggered.connect(QtWidgets.qApp.exit)
 
-        # Инициализация контекстного меню
-        self.copyTrackLink = self._create_action(':/images/copy.png', '&Копировать ссылку для скачивания',
+        self.copyTrackLink = self._create_action('&Копировать ссылку для скачивания', ':/images/copy.png',
                                                  'Копировать прямую ссылку на файл аудиозаписи',
                                                  callback=self.copy_track_link)
 
-        self.playTrack = self._create_action(':/images/play.png', '&Воспроизвести', 'Воспроизвести вудиозапись',
+        self.playTrack = self._create_action('&Воспроизвести', ':/images/play.png', 'Воспроизвести вудиозапись',
                                              callback=self.play_track)
 
-        self.download = self._create_action(':/images/download.png', '&Скачать',
+        self.download = self._create_action('&Скачать', ':/images/download.png',
                                             'Скачать выбранные ауиозаписи или всё, если ничего не выбрано', False,
                                             callback=self.download_audio_dialog)
 
+        self.sort_by_name = self._create_action('По названию', callback=self._sort_by_name)
+        self.sort_by_artist = self._create_action('По имени исполнителя', callback=self._sort_by_artist)
+        self.sort_tracks.addActions([self.sort_by_name, self.sort_by_artist])
+        # Инициализация контекстного меню
         self.context_menu = QtWidgets.QMenu(self)
-        self.context_menu.addAction(self.playTrack)
-        self.context_menu.addAction(self.download)
+        self.context_menu.addActions([self.playTrack, self.download])
         self.context_menu.addSeparator()
         self.context_menu.addAction(self.copyTrackLink)
         # Инициализация контекстного меню для системного трея
@@ -96,8 +98,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         # Конец инициализации контекстного меню
 
         self.trackList.itemDoubleClicked.connect(self.play_track)
-        self.trackList.itemExpanded.connect(self.on_item_expanded)
         self.trackList.customContextMenuRequested.connect(self._show_context_menu)
+        self.albumsList.itemExpanded.connect(self.on_item_expanded)
+
+        self.albumsList.customContextMenuRequested.connect(self._show_context_menu)
+        self.albumsList.itemDoubleClicked.connect(self.play_track)
 
         self.get_audio_thread = GetAudioListThread(cookie, self)
         self.get_audio_thread.signal.connect(self.audio_list_received)
@@ -150,10 +155,10 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.get_audio_thread.user_link = self.user_link.text()
         self.get_audio_thread.statusInfo = self.statusInfo
         self.get_audio_thread.saveData = self.saveData.isChecked()
-        self.get_audio_thread.sort_tracks = self.sort_tracks.isChecked()
         self.toggle_buttons(False)
         self.btnConfirm.setEnabled(False)
         self.trackList.clear()
+        self.albumsList.clear()
         self.statusInfo.setText('Процесс получение аудиозаписей начался.\n')
         self.get_audio_thread.start()
 
@@ -167,17 +172,20 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             if self.system_tray:
                 self.system_tray.showMessage(self.__title__, 'Список аудиозаписей получен')
             self.trackList.setEnabled(True)
+            self.albumsList.setEnabled(True)
             self.toggle_buttons(True)
             self.btnConfirm.setEnabled(True)
             for track in self.tracks:
                 self.trackList.addTopLevelItem(
-                    QtWidgets.QTreeWidgetItem(self.trackList, ['%(artist)s — %(title)s' % track, '%(url)s' % track])
+                    QtWidgets.QTreeWidgetItem(self.trackList, ['%(artist)s — %(title)s' % track,
+                                                               '%(title)s — %(artist)s' % track])
                 )
             for album in self.albums:
-                root = QtWidgets.QTreeWidgetItem(self.trackList, [album['title']])
+                root = QtWidgets.QTreeWidgetItem(self.albumsList, [album['title']])
                 root.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.ShowIndicator)
                 root.setFlags(Qt.ItemIsEnabled)
-                self.trackList.addTopLevelItem(root)
+                self.albumsList.addTopLevelItem(root)
+            self.trackList.hideColumn(1)
 
         elif isinstance(result, str):
             if self.system_tray:
@@ -212,7 +220,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     @pyqtSlot()
     def download_audio_dialog(self):
         os.chdir(self.start_dir)
-        selected = self.trackList.selectedItems()
+        selected = self.trackList.selectedItems() + self.albumsList.selectedItems()
         selected_tracks = self._get_selected_tracks(selected)
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выберите папку")
         if directory:
@@ -235,6 +243,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     @pyqtSlot()
     def download_all_tracks(self):
         self.trackList.clearSelection()
+        self.albumsList.clearSelection()
         self.download_audio_dialog()
 
     @pyqtSlot('PyQt_PyObject')
@@ -256,7 +265,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
 
     @pyqtSlot()
     def play_track(self):
-        self.selected = self.trackList.selectedItems()
+        self.selected = self.trackList.selectedItems() or self.albumsList.selectedItems()
         selected_tracks = self._get_selected_tracks(self.selected)
         if not selected_tracks:
             # Play random track :)
@@ -275,15 +284,20 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         for i in self.hidden_tracks:
             i.setHidden(False)
         self.hidden_tracks.clear()
-        result = [i.text(0) for i in self.trackList.findItems(query, Qt.MatchContains)]
+        result = [i.text(0) for i in self.trackList.findItems(query, Qt.MatchContains)] +\
+                 [i.text(0) for i in self.albumsList.findItems(query, Qt.MatchContains)]
         for i in range(self.trackList.topLevelItemCount()):
             if not self.trackList.topLevelItem(i).text(0) in result:
                 self.hidden_tracks.append(self.trackList.topLevelItem(i))
                 self.trackList.topLevelItem(i).setHidden(True)
+        for i in range(self.albumsList.topLevelItemCount()):
+            if not self.albumsList.topLevelItem(i).text(0) in result:
+                self.hidden_tracks.append(self.albumsList.topLevelItem(i))
+                self.albumsList.topLevelItem(i).setHidden(True)
 
     @pyqtSlot()
     def copy_track_link(self):
-        selected = self.trackList.selectedItems()
+        selected = self.trackList.selectedItems() or self.albumsList.selectedItems()
         selected_tracks = self._get_selected_tracks(selected)
         if selected_tracks:
             self.clipboard.setText(selected_tracks[0]['url'])
@@ -301,6 +315,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Delete:
             self.trackList.clearSelection()
+            self.albumsList.clearSelection()
         if e.key() == Qt.Key_Space:
             self._pause()
 
@@ -325,10 +340,10 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.password.setEnabled(state)
         self.user_link.setEnabled(state)
         self.trackList.setEnabled(state)
+        self.albumsList.setEnabled(state)
         self.saveData.setEnabled(state)
         self.search.setEnabled(state)
         self.btnConfirm.setEnabled(state)
-        self.sort_tracks.setEnabled(state)
 
     @pyqtSlot(str)
     def auth_handler(self, result):
@@ -337,8 +352,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if ok:
             self.key = num
 
-    def _create_action(self, icon_path, text, status_tip=None, shortcut=None, set_enabled=True, callback=None):
-        action = QtWidgets.QAction(QIcon(icon_path), text, self)
+    def _create_action(self, text, icon_path=None, status_tip=None, shortcut=None, set_enabled=True, callback=None):
+        if icon_path:
+            action = QtWidgets.QAction(QIcon(icon_path), text, self)
+        else:
+            action = QtWidgets.QAction(text, self)
         if status_tip:
             action.setStatusTip(status_tip)
         if shortcut:
@@ -356,16 +374,18 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def _get_selected_tracks(self, selected):
         selected_tracks = []
         for element in selected:
-            for track in self.tracks:
-                if element.text(0) in '%(artist)s — %(title)s' % track:
-                    selected_tracks.append(track)
-                    break
-        for element in selected:
-            for album in self.albums:
-                for track in album['tracks']:
+            if element.treeWidget().objectName() == 'trackList':
+                for track in self.tracks:
                     if element.text(0) in '%(artist)s — %(title)s' % track:
                         selected_tracks.append(track)
                         break
+            else:
+                for album in self.albums:
+                    if element.parent().text(0) == album['title']:
+                        for track in album['tracks']:
+                            if element.text(0) in '%(artist)s — %(title)s' % track:
+                                selected_tracks.append(track)
+                                break
         return selected_tracks
 
     def _save_audio_list(self, directory, save_links=True):
@@ -433,6 +453,16 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.activateWindow()
         self.showMaximized()
         self.showNormal()
+
+    def _sort_by_artist(self):
+        self.trackList.hideColumn(1)
+        self.trackList.showColumn(0)
+        self.trackList.sortItems(0, Qt.AscendingOrder)
+
+    def _sort_by_name(self):
+        self.trackList.hideColumn(0)
+        self.trackList.showColumn(1)
+        self.trackList.sortItems(1, Qt.AscendingOrder)
 
 
 class HelpDialog(QtWidgets.QDialog, help_dialog.Ui_helpDialog):
