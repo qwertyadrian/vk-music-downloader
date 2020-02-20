@@ -17,11 +17,13 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
-from keyrings.cryptfile.cryptfile import CryptFileKeyring
 import os.path
 import sys
 import tempfile
+
+from keyrings.cryptfile.cryptfile import CryptFileKeyring
 from PyQt5 import QtWidgets
+
 from audio_app import VkAudioApp
 
 
@@ -32,16 +34,16 @@ def ui():
     app.exec_()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     keyring = CryptFileKeyring()
     keyring.keyring_key = os.getlogin()
-    home = os.path.join(os.path.expanduser('~'), '.vk_downloader')
+    home = os.path.join(os.path.expanduser("~"), ".vk_downloader")
     if not os.path.exists(os.path.dirname(home)):
         home = tempfile.TemporaryDirectory()
-    cookie = os.path.join(home, 'vk_cookies.json')
-    data = keyring.get_password('vk_music_downloader', os.getlogin())
+    cookie = os.path.join(home, "vk_cookies.json")
+    data = keyring.get_password("vk_music_downloader", os.getlogin())
     if isinstance(data, str):
-        info = data.split('|')
+        info = data.split("|")
     else:
         info = None
     if not os.path.exists(home):
