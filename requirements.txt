@@ -1,5 +1,5 @@
 PyQt5
-vk_api==11.7.0
+-e git://github.com/qwertyadrian/vk_api#egg=vk_api
 bs4
 wget
 keyrings.cryptfile

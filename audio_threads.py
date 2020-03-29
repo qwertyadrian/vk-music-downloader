@@ -18,7 +18,6 @@
 #  along with this program. If not, see http://www.gnu.org/licenses/
 import os
 import os.path
-from collections import Counter
 from re import findall, sub
 
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -97,18 +96,6 @@ class GetAudioListThread(QThread):
             album["tracks"] = self.vk_audio.get(
                 owner_id=album["owner_id"], album_id=album["id"], access_hash=album["access_hash"]
             )
-        # Removing duplicates
-        names = []
-        for track in tracks:
-            names.append((track["artist"], track["title"]))
-        stats = Counter(names)
-
-        for i, n in stats.most_common():
-            if n >= 2:
-                for track in tracks:
-                    if track["artist"] == i[0] and track["title"] == i[1]:
-                        tracks.remove(track)
-                        break
         return tracks, string, albums
 
     def auth_handler(self):
