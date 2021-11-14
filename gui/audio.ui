@@ -47,9 +47,9 @@
    <widget class="QLabel" name="login_text">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>100</x>
       <y>10</y>
-      <width>291</width>
+      <width>331</width>
       <height>31</height>
      </rect>
     </property>
@@ -68,9 +68,9 @@
    <widget class="QLabel" name="password_text">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>360</x>
       <y>50</y>
-      <width>61</width>
+      <width>71</width>
       <height>31</height>
      </rect>
     </property>
@@ -488,7 +488,7 @@
      <x>0</x>
      <y>0</y>
      <width>780</width>
-     <height>30</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="music_menu">
@@ -619,6 +619,22 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>login</tabstop>
+  <tabstop>password</tabstop>
+  <tabstop>user_link</tabstop>
+  <tabstop>saveData</tabstop>
+  <tabstop>sort_tracks</tabstop>
+  <tabstop>btnConfirm</tabstop>
+  <tabstop>search</tabstop>
+  <tabstop>volumeSlider</tabstop>
+  <tabstop>pause_button</tabstop>
+  <tabstop>stop_button</tabstop>
+  <tabstop>play_status</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>trackList</tabstop>
+  <tabstop>albumsList</tabstop>
+ </tabstops>
  <resources>
   <include location="audio_res.qrc"/>
  </resources>

@@ -18,9 +18,12 @@
 #  along with this program. If not, see http://www.gnu.org/licenses/
 import os
 import os.path
+import shutil
+from tempfile import TemporaryFile
 from re import findall, sub
 
 from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtGui import QImage
 from vk_api import VkApi, exceptions
 from vk_api.audio import VkAudio
 from wget import download
@@ -29,6 +32,7 @@ from wget import download
 class GetAudioListThread(QThread):
     signal = pyqtSignal("PyQt_PyObject")
     str_signal = pyqtSignal(str)
+    image_signal = pyqtSignal("QImage")
 
     def __init__(self, cookie, window):
         QThread.__init__(self)
@@ -45,12 +49,20 @@ class GetAudioListThread(QThread):
         self.wait()
 
     def _user_auth(self):
-        self.session = VkApi(
-            login=self.login, password=self.password, auth_handler=self.auth_handler, config_filename=self.cookie
-        )
-        self.statusInfo.setText("Авторизация.")
-        self.session.auth()
-        self.session.http.cookies.update(dict(remixmdevice="1920/1080/1/!!-!!!!"))
+        if self.login:
+            self.session = VkApi(
+                login=self.login, password=self.password,
+                auth_handler=self.auth_handler,
+                captcha_handler=self.captcha_handler,
+                config_filename=self.cookie
+            )
+            self.statusInfo.setText("Авторизация.")
+            self.session.auth()
+        else:
+            self.statusInfo.setText(
+                "Логин не указан, использование пароля в качестве токена"
+            )
+            self.session = VkApi(token=self.password, captcha_handler=self.captcha_handler)
         self.vk_audio = VkAudio(self.session)
         self.authorized = True
 
@@ -66,11 +78,13 @@ class GetAudioListThread(QThread):
             self.statusInfo.setText("Получение списка аудиозаписей поста.")
             string = "Аудиозаписи поста"
             tracks = self.vk_audio.get_post_audio(owner_id, post_id)
+            audios = ",".join(["{owner_id}_{id}".format(**i) for i in tracks])
+            tracks = self.session.method(method="audio.getById", values={"audios": audios})
         elif isinstance(album, tuple):
-            owner_id, album_id, access_hash = album
+            owner_id, album_id, *_ = album
             self.statusInfo.setText("Получение списка аудиозаписей альбома.")
             string = "Аудиозаписи альбома"
-            tracks = self.vk_audio.get(owner_id, album_id, access_hash)
+            tracks = self._get_tracks(owner_id, album_id)
         else:
             user_id = self.get_user_id(self.user_link)
             # Try to get user or group audio list
@@ -78,25 +92,78 @@ class GetAudioListThread(QThread):
             try:
                 owner_id = self.session.method("users.get", dict(user_ids=user_id))[0]
                 self.statusInfo.setText(
-                    "Получение списка аудиозаписей пользователя: {} {}".format(
-                        owner_id["first_name"], owner_id["last_name"]
+                    "Получение списка аудиозаписей пользователя: {first_name} {last_name}".format(
+                        **owner_id
                     )
                 )
-                string = "Музыка пользователя: {} {}".format(owner_id["first_name"], owner_id["last_name"])
+                string = "Музыка пользователя: {first_name} {last_name}".format(**owner_id)
             except Exception:
                 group_id = self.session.method("groups.getById", dict(group_id=user_id))[0]
-                self.statusInfo.setText("Получение списка аудиозаписей сообщества: {}".format(group_id["name"]))
+                self.statusInfo.setText("Получение списка аудиозаписей сообщества: {name}".format(**group_id))
                 string = "Музыка сообщества: {}".format(group_id["name"])
-                albums = self.vk_audio.get_albums(-group_id["id"])
-                tracks = self.vk_audio.get(-group_id["id"])
+                albums = self._get_albums(-group_id["id"])
+                tracks = self._get_tracks(-group_id["id"])
             else:
-                albums = self.vk_audio.get_albums(owner_id["id"])
-                tracks = self.vk_audio.get(owner_id["id"])
+                albums = self._get_albums(owner_id["id"])
+                tracks = self._get_tracks(owner_id["id"])
         for album in albums:
-            album["tracks"] = self.vk_audio.get(
-                owner_id=album["owner_id"], album_id=album["id"], access_hash=album["access_hash"]
-            )
+            try:
+                album["tracks"] = self.vk_audio.get(
+                    owner_id=album["owner_id"], album_id=album["id"], access_hash=album["access_hash"]
+                )
+            except:
+                album["tracks"] = self._get_tracks(owner_id["id"], album["id"])
         return tracks, string, albums
+
+    def _get_tracks(self, owner_id, album_id=None, access_hash=None):
+        try:
+            tracks = self.vk_audio.get(owner_id, album_id, access_hash)
+        except:
+            values = {"owner_id": owner_id}
+            if album_id:
+                values.update({"album_id": album_id})
+            res = self.session.method(
+                method="audio.get",
+                values=values,
+            )
+            count = res['count']
+            offset = 0
+            tracks = []
+            while count != 0:
+                audios = ",".join(["{owner_id}_{id}".format(**i) for i in res['items']])
+                tracks.extend(self.session.method(
+                    method="audio.getById",
+                    values={"audios": audios}
+                ))
+                offset += 200 if count >= 200 else count % 200
+                count -= 200 if count >= 200 else count % 200
+                values.update({"offset": offset})
+                res = self.session.method(
+                    method="audio.get",
+                    values=values,
+                )
+        return tracks
+
+    def _get_albums(self, owner_id):
+        try:
+            albums = self.vk_audio.get_albums(owner_id["id"])
+        except:
+            res = self.session.method(
+                method="audio.getPlaylists",
+                values={"owner_id": owner_id},
+            )
+            count = res['count']
+            offset = 0
+            albums = []
+            while count != 0:
+                albums.extend(res['items'])
+                offset += 10 if count >= 10 else count % 10
+                count -= 10 if count >= 10 else count % 10
+                res = self.session.method(
+                    method="audio.getPlaylists",
+                    values={"owner_id": owner_id, "offset": offset},
+                )
+        return albums
 
     def auth_handler(self):
         """
@@ -107,6 +174,20 @@ class GetAudioListThread(QThread):
         while not self.window.key:
             pass
         return self.window.key, self.save_password
+
+    def captcha_handler(self, captcha):
+        url = captcha.get_url()
+        file = TemporaryFile()
+        res = self.session.http.get(url, stream=True)
+        res.raw.decode_content = True
+        shutil.copyfileobj(res.raw, file)
+        file.seek(0)
+        image = QImage()
+        image.loadFromData(file.read())
+        self.image_signal.emit(image)
+        while not self.window.key:
+            pass
+        return captcha.try_again(self.window.key)
 
     def run(self):
         try:
@@ -145,13 +226,15 @@ class GetAudioListThread(QThread):
     @staticmethod
     def get_album_id(link):
         link = link.replace("%2F", "/")
-        result = findall(r"album/(.*)_(.*)_(.*)\?", link)
+        result = findall(r"playlist/(.*)_(.*)_(.*)\?", link)
         if not result:
-            result = findall(r"album/(.*)_(.*)_(.*)", link)
+            result = findall(r"playlist/(.*)_(.*)_(.*)", link)
         if not result:
             result = findall(r"audio_playlist(.*)_(.*)&access_hash=(.*)", link)
         if not result:
             result = findall(r"audio_playlist(.*)_(.*)/(.*)", link)
+        if not result:
+            result = findall(r"audio_playlist(.*)_(.*)", link)
         return result[0] if result else None
 
 

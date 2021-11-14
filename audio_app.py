@@ -22,11 +22,11 @@ from random import choice
 from keyring.errors import PasswordDeleteError
 from PyQt5 import Qt, QtWidgets
 from PyQt5.QtCore import Qt, QTime, QUrl, pyqtSlot
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtMultimedia import *
 
 from audio_threads import DownloadAudio, GetAudioListThread
-from gui import about_dialog, audio_gui, help_dialog
+from gui import about_dialog, audio_gui, help_dialog, captcha_dialog
 
 
 # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
@@ -37,6 +37,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
 
         self.help = HelpDialog(self)
         self.about = AboutDialog(self)
+        self.captchaDialog = CaptchaDialog(self)
 
         self.__title__ = self.windowTitle()
 
@@ -69,6 +70,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.luckyMe.triggered.connect(self.play_track)
         self.helpDialog.triggered.connect(self.help.show)
         self.aboutDialog.triggered.connect(self.about.show)
+        self.captchaDialog.accepted.connect(self.captchaDialog.close)
         self.exit.triggered.connect(QtWidgets.qApp.exit)
 
         self.copyTrackLink = self._create_action(
@@ -114,6 +116,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.get_audio_thread = GetAudioListThread(cookie, self)
         self.get_audio_thread.signal.connect(self.audio_list_received)
         self.get_audio_thread.str_signal.connect(self.auth_handler)
+        self.get_audio_thread.image_signal.connect(self.captcha_handler)
 
         self.download_audio_thread = DownloadAudio()
         self.download_audio_thread.signal.connect(self.download_finished)
@@ -377,6 +380,14 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         if ok:
             self.key = num
 
+    @pyqtSlot(QImage)
+    def captcha_handler(self, image):
+        self.key = None
+        self.captchaDialog.imageLabel.setPixmap(QPixmap(image))
+        self.captchaDialog.exec_()
+        self.key = self.captchaDialog.captchaKey.text()
+        self.captchaDialog.captchaKey.clear()
+
     def _create_action(self, text, icon_path=None, status_tip=None, shortcut=None, set_enabled=True, callback=None):
         if icon_path:
             action = QtWidgets.QAction(QIcon(icon_path), text, self)
@@ -502,4 +513,10 @@ class HelpDialog(QtWidgets.QDialog, help_dialog.Ui_helpDialog):
 class AboutDialog(QtWidgets.QDialog, about_dialog.Ui_aboutDialog):
     def __init__(self, *args):
         super(AboutDialog, self).__init__(*args)
+        self.setupUi(self)
+
+
+class CaptchaDialog(QtWidgets.QDialog, captcha_dialog.Ui_CaptchaRequest):
+    def __init__(self, *args):
+        super(CaptchaDialog, self).__init__(*args)
         self.setupUi(self)
