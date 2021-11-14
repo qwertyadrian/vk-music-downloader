@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright (C) 2018-2020 Adrian Polyakov
+#  Copyright (C) 2018-2021 Adrian Polyakov
 #
 #  This file is part of VkMusic Downloader
 #
@@ -26,7 +26,7 @@ from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtMultimedia import *
 
 from audio_threads import DownloadAudio, GetAudioListThread
-from gui import about_dialog, audio_gui, help_dialog, captcha_dialog
+from gui import about_dialog, audio_gui, captcha_dialog, help_dialog
 
 
 # noinspection PyCallByClass,PyTypeChecker,PyArgumentList

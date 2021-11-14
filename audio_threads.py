@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright (C) 2018-2020 Adrian Polyakov
+#  Copyright (C) 2018-2021 Adrian Polyakov
 #
 #  This file is part of VkMusic Downloader
 #
@@ -19,8 +19,8 @@
 import os
 import os.path
 import shutil
-from tempfile import TemporaryFile
 from re import findall, sub
+from tempfile import TemporaryFile
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QImage
@@ -51,17 +51,16 @@ class GetAudioListThread(QThread):
     def _user_auth(self):
         if self.login:
             self.session = VkApi(
-                login=self.login, password=self.password,
+                login=self.login,
+                password=self.password,
                 auth_handler=self.auth_handler,
                 captcha_handler=self.captcha_handler,
-                config_filename=self.cookie
+                config_filename=self.cookie,
             )
             self.statusInfo.setText("Авторизация.")
             self.session.auth()
         else:
-            self.statusInfo.setText(
-                "Логин не указан, использование пароля в качестве токена"
-            )
+            self.statusInfo.setText("Логин не указан, использование пароля в качестве токена")
             self.session = VkApi(token=self.password, captcha_handler=self.captcha_handler)
         self.vk_audio = VkAudio(self.session)
         self.authorized = True
@@ -92,9 +91,7 @@ class GetAudioListThread(QThread):
             try:
                 owner_id = self.session.method("users.get", dict(user_ids=user_id))[0]
                 self.statusInfo.setText(
-                    "Получение списка аудиозаписей пользователя: {first_name} {last_name}".format(
-                        **owner_id
-                    )
+                    "Получение списка аудиозаписей пользователя: {first_name} {last_name}".format(**owner_id)
                 )
                 string = "Музыка пользователя: {first_name} {last_name}".format(**owner_id)
             except Exception:
@@ -126,15 +123,12 @@ class GetAudioListThread(QThread):
                 method="audio.get",
                 values=values,
             )
-            count = res['count']
+            count = res["count"]
             offset = 0
             tracks = []
             while count != 0:
-                audios = ",".join(["{owner_id}_{id}".format(**i) for i in res['items']])
-                tracks.extend(self.session.method(
-                    method="audio.getById",
-                    values={"audios": audios}
-                ))
+                audios = ",".join(["{owner_id}_{id}".format(**i) for i in res["items"]])
+                tracks.extend(self.session.method(method="audio.getById", values={"audios": audios}))
                 offset += 200 if count >= 200 else count % 200
                 count -= 200 if count >= 200 else count % 200
                 values.update({"offset": offset})
@@ -152,11 +146,11 @@ class GetAudioListThread(QThread):
                 method="audio.getPlaylists",
                 values={"owner_id": owner_id},
             )
-            count = res['count']
+            count = res["count"]
             offset = 0
             albums = []
             while count != 0:
-                albums.extend(res['items'])
+                albums.extend(res["items"])
                 offset += 10 if count >= 10 else count % 10
                 count -= 10 if count >= 10 else count % 10
                 res = self.session.method(
