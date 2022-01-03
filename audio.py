@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#  Copyright (C) 2018-2021 Adrian Polyakov
+#  Copyright (C) 2018-2022 Adrian Polyakov
 #
 #  This file is part of VkMusic Downloader
 #
