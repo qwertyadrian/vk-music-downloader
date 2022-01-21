@@ -20,13 +20,17 @@ import os
 import os.path
 import shutil
 from re import findall, sub
-from tempfile import TemporaryFile
+from tempfile import TemporaryDirectory, TemporaryFile
 
+from mutagen.id3 import APIC, ID3, TIT2, TPE1, error
+from mutagen.mp3 import MP3
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QImage
 from vk_api import VkApi, exceptions
 from vk_api.audio import VkAudio
 from wget import download
+
+MAX_FILENAME_LENGTH = 255
 
 
 class GetAudioListThread(QThread):
@@ -106,7 +110,9 @@ class GetAudioListThread(QThread):
         for album in albums:
             try:
                 album["tracks"] = self.vk_audio.get(
-                    owner_id=album["owner_id"], album_id=album["id"], access_hash=album["access_hash"]
+                    owner_id=album["owner_id"],
+                    album_id=album["id"],
+                    access_hash=album["access_hash"],
                 )
             except:
                 album["tracks"] = self._get_tracks(owner_id["id"], album["id"])
@@ -266,12 +272,27 @@ class DownloadAudio(QThread):
         return "Скачивание завершено"
 
     def _download(self, track):
-        name = "%(artist)s - %(title)s.mp3" % track
-        name = sub(r"[/\"?:|<>*\n\r\xa0]", "", name).strip().replace("\t", " ")
-        if len(name) > 127:
-            name = name[:126]
+        name = "%(artist)s - %(title)s" % track
+        name = sub(r"[^a-zA-Z '#0-9.а-яА-Я()-]", "", name)[: MAX_FILENAME_LENGTH - 16] + ".mp3"
         self.statusBar.showMessage("Скачивается {}".format(name))
         download(track["url"], out=name, bar=None)
+        with TemporaryDirectory() as tempdir:
+            if track.get("album"):
+                for key in track["album"]["thumb"]:
+                    if key.startswith("photo"):
+                        track_cover = download(
+                            track["album"]["thumb"][key].replace("impf/", ""),
+                            tempdir,
+                            bar=None,
+                        )
+            else:
+                track_cover = None
+            self.add_audio_tags(
+                name,
+                title=track["title"],
+                artist=track["artist"],
+                track_cover=track_cover,
+            )
 
     def run(self):
         try:
@@ -282,3 +303,31 @@ class DownloadAudio(QThread):
 
     def change_progress(self, n):
         self.int_signal.emit(n)
+
+    @staticmethod
+    def add_audio_tags(filename, artist, title, track_cover):
+        audio = MP3(filename, ID3=ID3)
+        # add ID3 tag if it doesn't exist
+        try:
+            audio.add_tags()
+        except error as e:
+            if str(e) != "an ID3 tag already exists":
+                return False
+        audio.clear()
+
+        if track_cover:
+            audio.tags.add(
+                APIC(
+                    encoding=3,  # 3 is for utf-8
+                    mime="image/png",  # image/jpeg or image/png
+                    type=3,  # 3 is for the cover image
+                    desc=u"Cover",
+                    data=open(track_cover, "rb").read(),
+                )
+            )
+
+        audio.tags.add(TIT2(encoding=3, text=title))
+        audio.tags.add(TPE1(encoding=3, text=artist))
+
+        audio.save()
+        return True

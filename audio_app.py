@@ -81,7 +81,10 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         )
 
         self.playTrack = self._create_action(
-            "&Воспроизвести", ":/images/play.png", "Воспроизвести вудиозапись", callback=self.play_track
+            "&Воспроизвести",
+            ":/images/play.png",
+            "Воспроизвести вудиозапись",
+            callback=self.play_track,
         )
 
         self.download = self._create_action(
@@ -194,7 +197,11 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             for track in self.tracks:
                 self.trackList.addTopLevelItem(
                     QtWidgets.QTreeWidgetItem(
-                        self.trackList, ["%(artist)s — %(title)s" % track, "%(title)s — %(artist)s" % track]
+                        self.trackList,
+                        [
+                            "%(artist)s — %(title)s" % track,
+                            "%(title)s — %(artist)s" % track,
+                        ],
                     )
                 )
             for album in self.albums:
@@ -212,10 +219,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                     QtWidgets.QSystemTrayIcon.Critical,
                 )
             self.btnConfirm.setEnabled(True)
-            self.statusBar.showMessage(
-                '<html><head/><body><p><span style=" color:#ff0000;">Ошибка: {}'
-                "</span></p></body></html>".format(result)
-            )
+            self.statusBar.showMessage("Ошибка: {}".format(result))
 
     @pyqtSlot()
     def save_all(self):
@@ -284,11 +288,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                     "Во время скачивания аудиозаписей произошла ошибка",
                     QtWidgets.QSystemTrayIcon.Critical,
                 )
-            self.statusBar.showMessage(
-                '<html><body><p><span style=" color:#ff0000;">При скачивании'
-                " произошла ошибка: {}"
-                "</span></p></body></html>".format(result)
-            )
+            self.statusBar.showMessage("При скачивании произошла ошибка: {}".format(result))
         self.download_audio_thread.albums = []
         self.download_audio_thread.tracks = None
 
@@ -390,7 +390,15 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.key = self.captchaDialog.captchaKey.text()
         self.captchaDialog.captchaKey.clear()
 
-    def _create_action(self, text, icon_path=None, status_tip=None, shortcut=None, set_enabled=True, callback=None):
+    def _create_action(
+        self,
+        text,
+        icon_path=None,
+        status_tip=None,
+        shortcut=None,
+        set_enabled=True,
+        callback=None,
+    ):
         if icon_path:
             action = QtWidgets.QAction(QIcon(icon_path), text, self)
         else:
