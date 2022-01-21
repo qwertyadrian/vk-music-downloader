@@ -39,7 +39,7 @@ class GetAudioListThread(QThread):
         self.login = ""
         self.password = ""
         self.user_link = ""
-        self.statusInfo = None
+        self.statusBar = None
         self.save_password = False
         self.authorized = False
         self.cookie = cookie
@@ -57,10 +57,10 @@ class GetAudioListThread(QThread):
                 captcha_handler=self.captcha_handler,
                 config_filename=self.cookie,
             )
-            self.statusInfo.setText("Авторизация.")
+            self.statusBar.showMessage("Авторизация.")
             self.session.auth()
         else:
-            self.statusInfo.setText("Логин не указан, использование пароля в качестве токена")
+            self.statusBar.showMessage("Логин не указан, использование пароля в качестве токена")
             self.session = VkApi(token=self.password, captcha_handler=self.captcha_handler)
         self.vk_audio = VkAudio(self.session)
         self.authorized = True
@@ -74,14 +74,14 @@ class GetAudioListThread(QThread):
         album = self.get_album_id(self.user_link)
         if isinstance(post, tuple):
             owner_id, post_id = post
-            self.statusInfo.setText("Получение списка аудиозаписей поста.")
+            self.statusBar.showMessage("Получение списка аудиозаписей поста.")
             string = "Аудиозаписи поста"
             tracks = self.vk_audio.get_post_audio(owner_id, post_id)
             audios = ",".join(["{owner_id}_{id}".format(**i) for i in tracks])
             tracks = self.session.method(method="audio.getById", values={"audios": audios})
         elif isinstance(album, tuple):
             owner_id, album_id, *_ = album
-            self.statusInfo.setText("Получение списка аудиозаписей альбома.")
+            self.statusBar.showMessage("Получение списка аудиозаписей альбома.")
             string = "Аудиозаписи альбома"
             tracks = self._get_tracks(owner_id, album_id)
         else:
@@ -90,13 +90,13 @@ class GetAudioListThread(QThread):
             # noinspection PyBroadException
             try:
                 owner_id = self.session.method("users.get", dict(user_ids=user_id))[0]
-                self.statusInfo.setText(
+                self.statusBar.showMessage(
                     "Получение списка аудиозаписей пользователя: {first_name} {last_name}".format(**owner_id)
                 )
                 string = "Музыка пользователя: {first_name} {last_name}".format(**owner_id)
             except Exception:
                 group_id = self.session.method("groups.getById", dict(group_id=user_id))[0]
-                self.statusInfo.setText("Получение списка аудиозаписей сообщества: {name}".format(**group_id))
+                self.statusBar.showMessage("Получение списка аудиозаписей сообщества: {name}".format(**group_id))
                 string = "Музыка сообщества: {}".format(group_id["name"])
                 albums = self._get_albums(-group_id["id"])
                 tracks = self._get_tracks(-group_id["id"])
@@ -238,7 +238,7 @@ class DownloadAudio(QThread):
 
     def __init__(self):
         QThread.__init__(self)
-        self.statusInfo = None
+        self.statusBar = None
         self.progressBar = None
         self.tracks = None
         self.albums = []
@@ -270,7 +270,7 @@ class DownloadAudio(QThread):
         name = sub(r"[/\"?:|<>*\n\r\xa0]", "", name).strip().replace("\t", " ")
         if len(name) > 127:
             name = name[:126]
-        self.statusInfo.setText("Скачивается {}".format(name))
+        self.statusBar.showMessage("Скачивается {}".format(name))
         download(track["url"], out=name, bar=None)
 
     def run(self):

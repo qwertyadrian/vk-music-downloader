@@ -129,6 +129,8 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.mediaPlayer.stateChanged.connect(lambda x: [self.toggle_buttons(True), self.toggle_fields(True)])
         self.mediaPlayer.positionChanged.connect(self._position_changed)
 
+        self.statusBar.showMessage("Готов к работе")
+
         if info:
             self.login.setText(info[0])
             self.password.setText(info[1])
@@ -165,22 +167,22 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.get_audio_thread.login = self.login.text()
         self.get_audio_thread.password = self.password.text()
         self.get_audio_thread.user_link = self.user_link.text()
-        self.get_audio_thread.statusInfo = self.statusInfo
+        self.get_audio_thread.statusBar = self.statusBar
         self.get_audio_thread.saveData = self.saveData.isChecked()
         self.toggle_buttons(False)
         self.btnConfirm.setEnabled(False)
         self.trackList.clear()
         self.albumsList.clear()
-        self.statusInfo.setText("Процесс получение аудиозаписей начался.\n")
+        self.statusBar.showMessage("Процесс получение аудиозаписей начался.\n")
         self.get_audio_thread.start()
 
     @pyqtSlot("PyQt_PyObject")
     def audio_list_received(self, result):
         if result and isinstance(result, tuple):
             self.tracks, self.string, self.albums = result
-            self.statusInfo.setText(
+            self.statusBar.showMessage(
                 "Список аудиозаписей получен."
-                " Зажмите Ctrl для множественного выбора"
+                " Зажмите Ctrl для множественного выбора."
                 "\n{}, {} шт.".format(self.string, len(self.tracks))
             )
             if self.system_tray:
@@ -210,7 +212,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                     QtWidgets.QSystemTrayIcon.Critical,
                 )
             self.btnConfirm.setEnabled(True)
-            self.statusInfo.setText(
+            self.statusBar.showMessage(
                 '<html><head/><body><p><span style=" color:#ff0000;">Ошибка: {}'
                 "</span></p></body></html>".format(result)
             )
@@ -223,7 +225,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             if not directory.endswith(".txt"):
                 directory += ".txt"
             self._save_audio_list(directory)
-            self.statusInfo.setText("Список аудиозаписей сохранен в файл {}".format(directory))
+            self.statusBar.showMessage("Список аудиозаписей сохранен в файл {}".format(directory))
 
     @pyqtSlot()
     def save_without_links(self):
@@ -235,7 +237,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             if not directory.endswith(".txt"):
                 directory += ".txt"
             self._save_audio_list(directory, save_links=False)
-            self.statusInfo.setText(
+            self.statusBar.showMessage(
                 "Список аудиозаписей (без ссылок на скачивание) сохранен в файл {}".format(directory)
             )
 
@@ -246,7 +248,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         selected_tracks = self._get_selected_tracks(selected)
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выберите папку")
         if directory:
-            self.download_audio_thread.statusInfo = self.statusInfo
+            self.download_audio_thread.statusBar = self.statusBar
             if selected_tracks:
                 self.download_audio_thread.tracks = selected_tracks
                 length = len(selected_tracks)
@@ -255,7 +257,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                 self.download_audio_thread.albums = self.albums
                 length = self._get_tracks_count()
             self.download_audio_thread.directory = directory
-            self.statusInfo.setText("Процесс скачивания аудиозаписей начался.")
+            self.statusBar.showMessage("Процесс скачивания аудиозаписей начался.")
             self.progress_label.setEnabled(True)
             self.progressBar.setEnabled(True)
             self.progressBar.setMaximum(length)
@@ -272,7 +274,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def download_finished(self, result):
         self.toggle_buttons(True)
         if isinstance(result, str):
-            self.statusInfo.setText(result)
+            self.statusBar.showMessage(result)
             if self.system_tray:
                 self.system_tray.showMessage(self.__title__, "Скачивание аудиозаписей завершено")
         else:
@@ -282,7 +284,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
                     "Во время скачивания аудиозаписей произошла ошибка",
                     QtWidgets.QSystemTrayIcon.Critical,
                 )
-            self.statusInfo.setText(
+            self.statusBar.showMessage(
                 '<html><body><p><span style=" color:#ff0000;">При скачивании'
                 " произошла ошибка: {}"
                 "</span></p></body></html>".format(result)
