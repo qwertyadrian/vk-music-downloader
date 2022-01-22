@@ -17,10 +17,11 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
-import os.path
-from pathlib import Path
+import os
 import sys
 import tempfile
+
+from pathlib import Path
 
 from keyrings.cryptfile.cryptfile import CryptFileKeyring
 from PyQt5 import QtWidgets

@@ -179,7 +179,7 @@
     <item row="2" column="0" colspan="4">
      <widget class="QLabel" name="link_text">
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10.5pt;&quot;&gt;Ссылка на профиль (пост, альбом) пользователя (сообщества):&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Ссылка на профиль (пост, альбом) пользователя (сообщества):</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -350,7 +350,7 @@
      <x>0</x>
      <y>0</y>
      <width>877</width>
-     <height>21</height>
+     <height>34</height>
     </rect>
    </property>
    <widget class="QMenu" name="music_menu">
