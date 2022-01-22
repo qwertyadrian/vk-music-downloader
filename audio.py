@@ -18,6 +18,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
 import os.path
+from pathlib import Path
 import sys
 import tempfile
 
@@ -37,15 +38,15 @@ def ui():
 if __name__ == "__main__":
     keyring = CryptFileKeyring()
     keyring.keyring_key = os.getlogin()
-    home = os.path.join(os.path.expanduser("~"), ".vk_downloader")
-    if not os.path.exists(os.path.dirname(home)):
+    home = Path.home() / ".vk_downloader"
+    try:
+        home.mkdir(exist_ok=True)
+    except (PermissionError, FileNotFoundError):
         home = tempfile.TemporaryDirectory()
-    cookie = os.path.join(home, "vk_cookies.json")
+    cookie = home / "vk_cookies.json"
     data = keyring.get_password("vk_music_downloader", os.getlogin())
     if isinstance(data, str):
         info = data.split("|")
     else:
         info = None
-    if not os.path.exists(home):
-        os.mkdir(home)
     ui()

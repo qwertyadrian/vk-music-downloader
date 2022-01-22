@@ -129,7 +129,7 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.current_volume = 100
         self.time = QTime(0, 0)
         self.mediaPlayer = QMediaPlayer(self)
-        self.mediaPlayer.stateChanged.connect(lambda x: [self.toggle_buttons(True), self.toggle_fields(True)])
+        self.mediaPlayer.stateChanged.connect(lambda x: (self.toggle_buttons(True), self.toggle_fields(True)))
         self.mediaPlayer.positionChanged.connect(self._position_changed)
 
         self.statusBar.showMessage("Готов к работе")
@@ -139,13 +139,13 @@ class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
             self.password.setText(info[1])
             self.user_link.setText(info[2])
 
-        if "\\Temp\\" in cookie or "/tmp/" in cookie:
+        if cookie.match("*\\Temp\\*") or cookie.match("/tmp/*"):
             message = (
                 "Не удалось создать папку для хранения куки приложения по пути\n{}\n\n"
                 "Была создана временная папка. После закрытия приложения она будет удалена. "
                 "В следствии этого, при авторизации, если включено, "
                 "после перезапуска приложения будет повторно запрошен "
-                "код подтверждения входа".format(os.path.dirname(cookie))
+                "код подтверждения входа".format(cookie)
             )
             QtWidgets.QMessageBox.warning(self, "Предупреждение", message)
 
