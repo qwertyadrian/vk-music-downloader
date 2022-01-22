@@ -15,7 +15,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(837, 581)
+        MainWindow.resize(877, 581)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/images/logo.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -157,7 +157,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.progressBar, 3, 5, 1, 2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 837, 34))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 877, 21))
         self.menuBar.setObjectName("menuBar")
         self.music_menu = QtWidgets.QMenu(self.menuBar)
         self.music_menu.setObjectName("music_menu")
@@ -215,7 +215,7 @@ class Ui_MainWindow(object):
         self.link_text.setBuddy(self.user_link)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.login, self.password)
         MainWindow.setTabOrder(self.password, self.user_link)
