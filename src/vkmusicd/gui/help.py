@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui/help_dialog.ui'
+# Form implementation generated from reading ui file 'src/vkmusicd/ui_files/help.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -48,4 +48,4 @@ class Ui_helpDialog(object):
     def retranslateUi(self, helpDialog):
         _translate = QtCore.QCoreApplication.translate
         helpDialog.setWindowTitle(_translate("helpDialog", "Помощь"))
-from gui import audio_res
+from vkmusicd.resources import resources

@@ -1,11 +1,11 @@
 generate_resources:
-	pyrcc5 -compress 9 gui/audio_res.qrc -o gui/audio_res.py
+	pyrcc5 -compress 9 src/vkmusicd/resources/resources.qrc -o src/vkmusicd/resources/resources.py
 
 generate_ui: generate_resources
-	pyuic5 gui/audio.ui --import-from=gui -o gui/audio_gui.py --resource-suffix=
-	pyuic5 gui/help_dialog.ui --import-from=gui -o gui/help_dialog.py --resource-suffix=
-	pyuic5 gui/about_dialog.ui --import-from=gui -o gui/about_dialog.py --resource-suffix=
-	pyuic5 gui/captcha_dialog.ui --import-from=gui -o gui/captcha_dialog.py --resource-suffix=
+	pyuic5 src/vkmusicd/ui_files/mainwindow.ui --import-from=vkmusicd.resources -o src/vkmusicd/gui/mainwindow_ui.py --resource-suffix=
+	pyuic5 src/vkmusicd/ui_files/help.ui --import-from=vkmusicd.resources -o src/vkmusicd/gui/help.py --resource-suffix=
+	pyuic5 src/vkmusicd/ui_files/about.ui --import-from=vkmusicd.resources -o src/vkmusicd/gui/about.py --resource-suffix=
+	pyuic5 src/vkmusicd/ui_files/captcha.ui --import-from=vkmusicd.resources -o src/vkmusicd/gui/captcha.py --resource-suffix=
 
 build: generate_ui
-	pyinstaller -F -w -i gui/resources/images/logo.ico audio.py --additional-hooks-dir hooks
+	pyinstaller -F -w -i src/vkmusicd/resources/images/logo.ico src/runapp.py --additional-hooks-dir hooks

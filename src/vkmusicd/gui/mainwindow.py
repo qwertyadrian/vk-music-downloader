@@ -26,11 +26,14 @@ from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtMultimedia import *
 
 from vkmusicd.utilites.audio_threads import DownloadAudio, GetAudioListThread
-from gui import about_dialog, audio_gui, captcha_dialog, help_dialog
+from .mainwindow_ui import Ui_MainWindow
+from .help import Ui_helpDialog
+from .about import Ui_aboutDialog
+from .captcha import Ui_CaptchaRequest
 
 
 # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
-class MainWindow(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, info, cookie, keyring):
         super().__init__()
         self.setupUi(self)
@@ -514,19 +517,19 @@ class MainWindow(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
         self.trackList.sortItems(1, Qt.AscendingOrder)
 
 
-class HelpDialog(QtWidgets.QDialog, help_dialog.Ui_helpDialog):
+class HelpDialog(QtWidgets.QDialog, Ui_helpDialog):
     def __init__(self, *args):
         super(HelpDialog, self).__init__(*args)
         self.setupUi(self)
 
 
-class AboutDialog(QtWidgets.QDialog, about_dialog.Ui_aboutDialog):
+class AboutDialog(QtWidgets.QDialog, Ui_aboutDialog):
     def __init__(self, *args):
         super(AboutDialog, self).__init__(*args)
         self.setupUi(self)
 
 
-class CaptchaDialog(QtWidgets.QDialog, captcha_dialog.Ui_CaptchaRequest):
+class CaptchaDialog(QtWidgets.QDialog, Ui_CaptchaRequest):
     def __init__(self, *args):
         super(CaptchaDialog, self).__init__(*args)
         self.setupUi(self)

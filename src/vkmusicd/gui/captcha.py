@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui/captcha_dialog.ui'
+# Form implementation generated from reading ui file 'src/vkmusicd/ui_files/captcha.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #

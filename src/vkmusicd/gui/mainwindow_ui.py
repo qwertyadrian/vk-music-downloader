@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui/audio.ui'
+# Form implementation generated from reading ui file 'src/vkmusicd/ui_files/mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -157,7 +157,7 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.progressBar, 3, 5, 1, 2)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 877, 34))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 877, 21))
         self.menuBar.setObjectName("menuBar")
         self.music_menu = QtWidgets.QMenu(self.menuBar)
         self.music_menu.setObjectName("music_menu")
@@ -272,4 +272,4 @@ class Ui_MainWindow(object):
         self.helpDialog.setShortcut(_translate("MainWindow", "Ctrl+H"))
         self.aboutDialog.setText(_translate("MainWindow", "&О программе"))
         self.aboutDialog.setStatusTip(_translate("MainWindow", "Информация о VkMusic Downloader"))
-from gui import audio_res
+from vkmusicd.resources import resources

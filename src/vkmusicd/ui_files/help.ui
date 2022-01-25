@@ -74,7 +74,7 @@
   </widget>
  </widget>
  <resources>
-  <include location="audio_res.qrc"/>
+  <include location="../resources/resources.qrc"/>
  </resources>
  <connections>
   <connection>

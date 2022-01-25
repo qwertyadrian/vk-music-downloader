@@ -1,0 +1,25 @@
+<RCC>
+  <qresource prefix="/images">
+    <file alias="branch-closed.png">images/branch-closed.png</file>
+    <file alias="branch-open-open.png">images/branch-open-180.png</file>
+    <file alias="branch-open.png">images/branch-open.png</file>
+    <file alias="checked.png">images/checked.png</file>
+    <file alias="copy.png">images/copy.png</file>
+    <file alias="download_all.png">images/download_all.png</file>
+    <file alias="download.png">images/download.png</file>
+    <file alias="exit.png">images/exit.png</file>
+    <file alias="help.png">images/help.png</file>
+    <file alias="pause_button.png">images/pause_button.png</file>
+    <file alias="play_button.png">images/play_button.png</file>
+    <file alias="play.png">images/play.png</file>
+    <file alias="save_all.png">images/save_all.png</file>
+    <file alias="stop_button.png">images/stop_button.png</file>
+    <file alias="unchecked_hover.png">images/unchecked_hover.png</file>
+    <file alias="unchecked.png">images/unchecked.png</file>
+    <file alias="logo.ico">images/logo.ico</file>
+  </qresource>
+  <qresource prefix="/html">
+    <file alias="about.html">html/about.html</file>
+    <file alias="help.html">html/help.html</file>
+  </qresource>
+</RCC>
