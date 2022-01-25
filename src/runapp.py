@@ -26,14 +26,14 @@ from pathlib import Path
 from keyrings.cryptfile.cryptfile import CryptFileKeyring
 from PyQt5 import QtWidgets
 
-from audio_app import VkAudioApp
+from vkmusicd.gui.mainwindow import MainWindow
 
 
 def ui():
     app = QtWidgets.QApplication(sys.argv)
-    window = VkAudioApp(info, cookie, keyring)
+    window = MainWindow(info, cookie, keyring)
     window.show()
-    app.exec_()
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

@@ -25,12 +25,12 @@ from PyQt5.QtCore import Qt, QTime, QUrl, pyqtSlot
 from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtMultimedia import *
 
-from audio_threads import DownloadAudio, GetAudioListThread
+from vkmusicd.utilites.audio_threads import DownloadAudio, GetAudioListThread
 from gui import about_dialog, audio_gui, captcha_dialog, help_dialog
 
 
 # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
-class VkAudioApp(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
+class MainWindow(QtWidgets.QMainWindow, audio_gui.Ui_MainWindow):
     def __init__(self, info, cookie, keyring):
         super().__init__()
         self.setupUi(self)
