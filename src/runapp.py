@@ -29,13 +29,6 @@ from PyQt5 import QtWidgets
 from vkmusicd.gui.mainwindow import MainWindow
 
 
-def ui():
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow(info, cookie, keyring)
-    window.show()
-    sys.exit(app.exec())
-
-
 if __name__ == "__main__":
     keyring = CryptFileKeyring()
     keyring.keyring_key = os.getlogin()
@@ -50,4 +43,7 @@ if __name__ == "__main__":
         info = data.split("|")
     else:
         info = None
-    ui()
+    app = QtWidgets.QApplication(sys.argv)
+    window = MainWindow(info, cookie, keyring)
+    window.show()
+    sys.exit(app.exec())

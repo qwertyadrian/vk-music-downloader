@@ -21,7 +21,7 @@ from random import choice
 
 from keyring.errors import PasswordDeleteError
 from PyQt5 import Qt, QtWidgets
-from PyQt5.QtCore import Qt, QTime, QUrl, pyqtSlot
+from PyQt5.QtCore import Qt, QTime, QUrl, pyqtSlot, QReadWriteLock
 from PyQt5.QtGui import QIcon, QImage, QPixmap
 from PyQt5.QtMultimedia import *
 
@@ -37,6 +37,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, info, cookie, keyring):
         super().__init__()
         self.setupUi(self)
+
+        self.lock = QReadWriteLock()
 
         self.help = HelpDialog(self)
         self.about = AboutDialog(self)
@@ -119,7 +121,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.albumsList.customContextMenuRequested.connect(self._show_context_menu)
         self.albumsList.itemDoubleClicked.connect(self.play_track)
 
-        self.get_audio_thread = GetAudioListThread(cookie, self)
+        self.get_audio_thread = GetAudioListThread(cookie)
         self.get_audio_thread.signal.connect(self.audio_list_received)
         self.get_audio_thread.str_signal.connect(self.auth_handler)
         self.get_audio_thread.image_signal.connect(self.captcha_handler)
@@ -157,7 +159,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tracks = None
         self.string = None
         self.albums = None
-        self.key = None
 
     @pyqtSlot()
     def get_audio_list(self):
@@ -380,18 +381,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     @pyqtSlot(str)
     def auth_handler(self, result):
-        self.key = None
+        self.lock.lockForWrite()
+        self.get_audio_thread.key = None
         num, ok = QtWidgets.QInputDialog.getText(self, "Двухфакторная аутентификация", result)
         if ok:
-            self.key = num
+            self.get_audio_thread.key = num
+        self.lock.unlock()
 
     @pyqtSlot(QImage)
     def captcha_handler(self, image):
-        self.key = None
+        self.lock.lockForWrite()
+        self.get_audio_thread.key = None
         self.captchaDialog.imageLabel.setPixmap(QPixmap(image))
         self.captchaDialog.exec_()
-        self.key = self.captchaDialog.captchaKey.text()
+        self.get_audio_thread.key = self.captchaDialog.captchaKey.text()
         self.captchaDialog.captchaKey.clear()
+        self.lock.unlock()
 
     def _create_action(
         self,

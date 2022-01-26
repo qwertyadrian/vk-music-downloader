@@ -38,7 +38,7 @@ class GetAudioListThread(QThread):
     str_signal = pyqtSignal(str)
     image_signal = pyqtSignal("QImage")
 
-    def __init__(self, cookie, window):
+    def __init__(self, cookie):
         QThread.__init__(self)
         self.login = ""
         self.password = ""
@@ -47,7 +47,7 @@ class GetAudioListThread(QThread):
         self.save_password = False
         self.authorized = False
         self.cookie = cookie
-        self.window = window
+        self.key = None
 
     def __del__(self):
         self.wait()
@@ -171,9 +171,9 @@ class GetAudioListThread(QThread):
         :return: key, remember_device
         """
         self.str_signal.emit("Введите код авторизации:")
-        while not self.window.key:
+        while not self.key:
             pass
-        return self.window.key, self.save_password
+        return self.key, self.save_password
 
     def captcha_handler(self, captcha):
         url = captcha.get_url()
@@ -185,9 +185,9 @@ class GetAudioListThread(QThread):
         image = QImage()
         image.loadFromData(file.read())
         self.image_signal.emit(image)
-        while not self.window.key:
+        while not self.key:
             pass
-        return captcha.try_again(self.window.key)
+        return captcha.try_again(self.key)
 
     def run(self):
         try:
