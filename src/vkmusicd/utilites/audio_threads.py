@@ -16,8 +16,6 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
-import os
-import os.path
 import shutil
 from re import findall, sub
 from tempfile import TemporaryDirectory, TemporaryFile
@@ -254,28 +252,27 @@ class DownloadAudio(QThread):
         self.wait()
 
     def _download_audio(self):
-        os.chdir(self.directory)
         n = 0
         for track in self.tracks:
             self._download(track)
             n += 1
             self.change_progress(n)
         for album in self.albums:
-            path = "./" + album["title"]
-            os.mkdir(path)
-            os.chdir(path)
+            self.directory /= album["title"]
+            self.directory.mkdir(exist_ok=True)
             for track in album["tracks"]:
                 self._download(track)
                 n += 1
                 self.change_progress(n)
-            os.chdir("../")
+            self.directory = self.directory.parent
         return "Скачивание завершено"
 
     def _download(self, track):
         name = "%(artist)s - %(title)s" % track
         name = sub(r"[^a-zA-Z '#0-9.а-яА-Я()-]", "", name)[: MAX_FILENAME_LENGTH - 16] + ".mp3"
         self.statusBar.showMessage("Скачивается {}".format(name))
-        download(track["url"], out=name, bar=None)
+        out = self.directory / name
+        download(track["url"], out=str(out), bar=None)
         with TemporaryDirectory() as tempdir:
             if track.get("album"):
                 for key in track["album"]["thumb"]:
@@ -288,7 +285,7 @@ class DownloadAudio(QThread):
             else:
                 track_cover = None
             self.add_audio_tags(
-                name,
+                out,
                 title=track["title"],
                 artist=track["artist"],
                 track_cover=track_cover,

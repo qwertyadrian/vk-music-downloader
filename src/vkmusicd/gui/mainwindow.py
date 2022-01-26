@@ -16,8 +16,9 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
-import os.path
+import os
 import json
+import pathlib
 from random import choice
 
 from keyring.errors import PasswordDeleteError
@@ -49,7 +50,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.keyring = keyring
 
-        self.start_dir = os.getcwd()
         self.clipboard = QtWidgets.qApp.clipboard()
         try:
             self.system_tray = QtWidgets.QSystemTrayIcon(QIcon(":/images/logo.ico"), self)
@@ -233,7 +233,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     @pyqtSlot()
     def save_all(self):
-        os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(self, "Сохранить всё", self.string, "Text files (*.txt)")[0]
         if directory and self.tracks and self.string:
             if not directory.endswith(".txt"):
@@ -243,7 +242,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     @pyqtSlot()
     def save_without_links(self):
-        os.chdir(self.start_dir)
         directory = QtWidgets.QFileDialog.getSaveFileName(
             self, "Сохранить без ссылок", self.string, "Text files (*.txt)"
         )[0]
@@ -257,7 +255,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     @pyqtSlot()
     def download_audio_dialog(self):
-        os.chdir(self.start_dir)
         selected = self.trackList.selectedItems() + self.albumsList.selectedItems()
         selected_tracks = self._get_selected_tracks(selected)
         directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выберите папку")
@@ -270,7 +267,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.download_audio_thread.tracks = self.tracks
                 self.download_audio_thread.albums = self.albums
                 length = self._get_tracks_count()
-            self.download_audio_thread.directory = directory
+            self.download_audio_thread.directory = pathlib.Path(directory)
             self.statusBar.showMessage("Процесс скачивания аудиозаписей начался.")
             self.progress_label.setEnabled(True)
             self.progressBar.setEnabled(True)
