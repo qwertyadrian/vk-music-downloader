@@ -17,12 +17,13 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
 import os.path
+import json
 from random import choice
 
 from keyring.errors import PasswordDeleteError
 from PyQt5 import Qt, QtWidgets
 from PyQt5.QtCore import Qt, QTime, QUrl, pyqtSlot, QReadWriteLock
-from PyQt5.QtGui import QIcon, QImage, QPixmap
+from PyQt5.QtGui import QIcon, QImage, QPixmap, QKeySequence
 from PyQt5.QtMultimedia import *
 
 from vkmusicd.utilites.audio_threads import DownloadAudio, GetAudioListThread
@@ -136,6 +137,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.mediaPlayer = QMediaPlayer(self)
         self.mediaPlayer.stateChanged.connect(lambda x: (self.toggle_buttons(True), self.toggle_fields(True)))
         self.mediaPlayer.positionChanged.connect(self._position_changed)
+
+        self.shortcut = QtWidgets.QShortcut(QKeySequence("Ctrl+J"), self)
+        self.shortcut.activated.connect(self._dump)
+        self.shortcut = QtWidgets.QShortcut(QKeySequence("Ctrl+K"), self)
+        self.shortcut.activated.connect(self._load)
 
         self.statusBar.showMessage("Готов к работе")
 
@@ -520,6 +526,28 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.trackList.hideColumn(0)
         self.trackList.showColumn(1)
         self.trackList.sortItems(1, Qt.AscendingOrder)
+
+    @pyqtSlot()
+    def _dump(self):
+        result = {}
+        if self.string:
+            result["string"] = self.string
+        if self.tracks:
+            result["tracks"] = self.tracks.copy()
+        if self.albums:
+            result["albums"] = self.albums.copy()
+        with open("dump.json", "w") as f:
+            json.dump(result, f, indent=2, ensure_ascii=False)
+
+    @pyqtSlot()
+    def _load(self):
+        try:
+            with open("dump.json") as f:
+                result = json.load(f)
+        except FileNotFoundError:
+            return
+        else:
+            self.audio_list_received((result["tracks"], result["string"], result["albums"]))
 
 
 class HelpDialog(QtWidgets.QDialog, Ui_helpDialog):
