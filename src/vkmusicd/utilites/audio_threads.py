@@ -97,11 +97,11 @@ class GetAudioListThread(QThread):
                 self.statusBar.showMessage(
                     "Получение списка аудиозаписей пользователя: {first_name} {last_name}".format(**owner_id)
                 )
-                string = "Музыка пользователя: {first_name} {last_name}".format(**owner_id)
+                string = "Музыка пользователя {first_name} {last_name}".format(**owner_id)
             except Exception:
                 group_id = self.session.method("groups.getById", dict(group_id=user_id))[0]
                 self.statusBar.showMessage("Получение списка аудиозаписей сообщества: {name}".format(**group_id))
-                string = "Музыка сообщества: {}".format(group_id["name"])
+                string = "Музыка сообщества {}".format(group_id["name"])
                 albums = self._get_albums(-group_id["id"])
                 tracks = self._get_tracks(-group_id["id"])
             else:

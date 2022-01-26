@@ -442,25 +442,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                 break
         return selected_tracks
 
-    def _save_audio_list(self, directory, save_links=True):
-        with open(directory, "w", encoding="utf-8") as d:
-            print("{}, {} шт.".format(self.string, len(self.tracks)), file=d, end=" ")
+    def _save_audio_list(self, output, save_links=True):
+        with open(output, "w", encoding="utf-8") as f:
+            f.write("{}, {} шт.".format(self.string, len(self.tracks)))
             if self.albums:
-                print("{} альбомов\n".format(len(self.albums)), file=d)
+                f.write(" {} альбомов\n\n".format(len(self.albums)))
             else:
-                print("\n", file=d, end="")
+                f.write("\n")
             for track in self.tracks:
                 if save_links:
-                    print("%(artist)s - %(title)s: %(url)s\n" % track, file=d)
+                    f.write("{artist} - {title}: {url}\n\n".format(**track))
                 else:
-                    print("%(artist)s - %(title)s" % track, file=d)
+                    f.write("{artist} - {title}\n".format(**track))
             for album in self.albums:
-                print("\nАльбом %(title)s:\n" % album, file=d)
+                f.write("\nАльбом {title}:\n\n".format(**album))
                 for track in album["tracks"]:
                     if save_links:
-                        print("    %(artist)s - %(title)s: %(url)s\n" % track, file=d)
+                        f.write("    {artist} - {title}: {url}\n\n".format(**track))
                     else:
-                        print("    %(artist)s - %(title)s" % track, file=d)
+                        f.write("    {artist} - {title}\n".format(**track))
 
     @pyqtSlot()
     def _pause(self):
