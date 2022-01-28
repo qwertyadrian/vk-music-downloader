@@ -33,6 +33,7 @@ class Ui_helpDialog(object):
         self.textBrowser.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.textBrowser.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.textBrowser.setSource(QtCore.QUrl("qrc:/html/help.html"))
+        self.textBrowser.setOpenExternalLinks(True)
         self.textBrowser.setObjectName("textBrowser")
         self.verticalLayout.addWidget(self.textBrowser)
         self.buttonBox = QtWidgets.QDialogButtonBox(self.layoutWidget)

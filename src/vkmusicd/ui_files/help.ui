@@ -58,6 +58,9 @@
         <string>qrc:/html/help.html</string>
        </url>
       </property>
+      <property name="openExternalLinks">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item>
