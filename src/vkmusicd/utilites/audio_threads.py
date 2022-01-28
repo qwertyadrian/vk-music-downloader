@@ -266,7 +266,7 @@ class DownloadAudio(QThread):
         return "Скачивание завершено"
 
     def _download(self, track):
-        name = "%(artist)s - %(title)s" % track
+        name = "{artist} - {title}".format(**track)
         name = sub(r"[^a-zA-Z '#0-9.а-яА-Я()-]", "", name)[: MAX_FILENAME_LENGTH - 16] + ".mp3"
         self.statusBar.showMessage("Скачивается {}".format(name))
         out = self.directory / name

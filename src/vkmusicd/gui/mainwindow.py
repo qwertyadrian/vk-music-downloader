@@ -212,8 +212,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     QTreeWidgetItem(
                         self.trackList,
                         [
-                            "%(artist)s — %(title)s" % track,
-                            "%(title)s — %(artist)s" % track,
+                            "{artist} - {title}".format(**track),
+                            "{title} - {artist}".format(**track),
                         ],
                     )
                 )
@@ -310,7 +310,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # Play random track :)
             track = choice(self.tracks)
             selected_tracks.append(track)
-            self.selected.append(self.trackList.findItems("%(artist)s — %(title)s" % track, Qt.MatchContains)[0])
+            self.selected.append(self.trackList.findItems("{artist} - {title}".format(**track), Qt.MatchContains)[0])
         local = QUrl(selected_tracks[0]["url"])
         media = QMediaContent(local)
         self.mediaPlayer.setMedia(media)
@@ -376,7 +376,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for album in self.albums:
             if album["title"] == item.text(0):
                 for track in album["tracks"]:
-                    QTreeWidgetItem(item, ["%(artist)s — %(title)s" % track])
+                    QTreeWidgetItem(item, ["{artist} - {title}".format(**track)])
 
     def toggle_buttons(self, state: bool):
         self.saveAll.setEnabled(state)
@@ -446,14 +446,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for element in selected:
             if element.treeWidget().objectName() == "trackList":
                 for track in self.tracks:
-                    if element.text(0) in "%(artist)s — %(title)s" % track:
+                    if element.text(0) in "{artist} - {title}".format(**track):
                         selected_tracks.append(track)
                         break
             else:
                 for album in self.albums:
                     if element.parent().text(0) == album["title"]:
                         for track in album["tracks"]:
-                            if element.text(0) in "%(artist)s — %(title)s" % track:
+                            if element.text(0) in "{artist} - {title}".format(**track):
                                 selected_tracks.append(track)
                                 break
         return selected_tracks
