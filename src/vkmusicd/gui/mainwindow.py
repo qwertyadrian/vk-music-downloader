@@ -16,26 +16,29 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program. If not, see http://www.gnu.org/licenses/
-import os
 import json
+import os
 import pathlib
 from random import choice
 
 from keyring.errors import PasswordDeleteError
-from PyQt5 import Qt, QtWidgets
-from PyQt5.QtCore import Qt, QTime, QUrl, pyqtSlot, QReadWriteLock
-from PyQt5.QtGui import QIcon, QImage, QPixmap, QKeySequence
-from PyQt5.QtMultimedia import *
+from PyQt5 import Qt
+from PyQt5.QtCore import QReadWriteLock, Qt, QTime, QUrl, pyqtSlot
+from PyQt5.QtGui import QIcon, QImage, QKeySequence, QPixmap
+from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
+from PyQt5.QtWidgets import (QAction, QDialog, QFileDialog, QInputDialog, QMainWindow, QMenu, QMessageBox, QShortcut,
+                             QSystemTrayIcon, QTreeWidgetItem, qApp)
 
 from vkmusicd.utilites.audio_threads import DownloadAudio, GetAudioListThread
-from .mainwindow_ui import Ui_MainWindow
-from .help import Ui_helpDialog
+
 from .about import Ui_aboutDialog
 from .captcha import Ui_CaptchaRequest
+from .help import Ui_helpDialog
+from .mainwindow_ui import Ui_MainWindow
 
 
 # noinspection PyCallByClass,PyTypeChecker,PyArgumentList
-class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, info, cookie, keyring):
         super().__init__()
         self.setupUi(self)
@@ -50,9 +53,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.keyring = keyring
 
-        self.clipboard = QtWidgets.qApp.clipboard()
+        self.clipboard = qApp.clipboard()
         try:
-            self.system_tray = QtWidgets.QSystemTrayIcon(QIcon(":/images/logo.ico"), self)
+            self.system_tray = QSystemTrayIcon(QIcon(":/images/logo.ico"), self)
             self.system_tray.messageClicked.connect(self._maximize_window)
             self.system_tray.activated.connect(self._maximize_window)
             self.system_tray.show()
@@ -77,7 +80,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.helpDialog.triggered.connect(self.help.show)
         self.aboutDialog.triggered.connect(self.about.show)
         self.captchaDialog.accepted.connect(self.captchaDialog.close)
-        self.exit.triggered.connect(QtWidgets.qApp.exit)
+        self.exit.triggered.connect(qApp.exit)
 
         self.copyTrackLink = self._create_action(
             "&Копировать ссылку для скачивания",
@@ -105,12 +108,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.sort_by_artist = self._create_action("По имени исполнителя", callback=self._sort_by_artist)
         self.sort_tracks.addActions([self.sort_by_name, self.sort_by_artist])
         # Инициализация контекстного меню
-        self.context_menu = QtWidgets.QMenu(self)
+        self.context_menu = QMenu(self)
         self.context_menu.addActions([self.playTrack, self.download])
         self.context_menu.addSeparator()
         self.context_menu.addAction(self.copyTrackLink)
         # Инициализация контекстного меню для системного трея
-        self.system_tray_menu = QtWidgets.QMenu(self)
+        self.system_tray_menu = QMenu(self)
         self.system_tray_menu.addAction(self.exit)
         self.system_tray.setContextMenu(self.system_tray_menu)
         # Конец инициализации контекстного меню
@@ -135,12 +138,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.current_volume = 100
         self.time = QTime(0, 0)
         self.mediaPlayer = QMediaPlayer(self)
-        self.mediaPlayer.stateChanged.connect(lambda x: (self.toggle_buttons(True), self.toggle_fields(True)))
+        self.mediaPlayer.stateChanged.connect(lambda: (self.toggle_buttons(True), self.toggle_fields(True)))
         self.mediaPlayer.positionChanged.connect(self._position_changed)
 
-        self.shortcut = QtWidgets.QShortcut(QKeySequence("Ctrl+J"), self)
+        self.shortcut = QShortcut(QKeySequence("Ctrl+J"), self)
         self.shortcut.activated.connect(self._dump)
-        self.shortcut = QtWidgets.QShortcut(QKeySequence("Ctrl+K"), self)
+        self.shortcut = QShortcut(QKeySequence("Ctrl+K"), self)
         self.shortcut.activated.connect(self._load)
 
         self.statusBar.showMessage("Готов к работе")
@@ -158,7 +161,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 "после перезапуска приложения будет повторно запрошен "
                 "код подтверждения входа".format(cookie)
             )
-            QtWidgets.QMessageBox.warning(self, "Предупреждение", message)
+            QMessageBox.warning(self, "Предупреждение", message)
 
         self.hidden_tracks = []
         self.selected = None
@@ -206,7 +209,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.btnConfirm.setEnabled(True)
             for track in self.tracks:
                 self.trackList.addTopLevelItem(
-                    QtWidgets.QTreeWidgetItem(
+                    QTreeWidgetItem(
                         self.trackList,
                         [
                             "%(artist)s — %(title)s" % track,
@@ -215,8 +218,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     )
                 )
             for album in self.albums:
-                root = QtWidgets.QTreeWidgetItem(self.albumsList, [album["title"]])
-                root.setChildIndicatorPolicy(QtWidgets.QTreeWidgetItem.ShowIndicator)
+                root = QTreeWidgetItem(self.albumsList, [album["title"]])
+                root.setChildIndicatorPolicy(QTreeWidgetItem.ShowIndicator)
                 root.setFlags(Qt.ItemIsEnabled)
                 self.albumsList.addTopLevelItem(root)
             self.trackList.hideColumn(1)
@@ -226,14 +229,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.system_tray.showMessage(
                     self.__title__,
                     "Во время получения аудиозаписей произошла ошибка",
-                    QtWidgets.QSystemTrayIcon.Critical,
+                    QSystemTrayIcon.Critical,
                 )
             self.btnConfirm.setEnabled(True)
             self.statusBar.showMessage("Ошибка: {}".format(result))
 
     @pyqtSlot()
     def save_all(self):
-        directory = QtWidgets.QFileDialog.getSaveFileName(self, "Сохранить всё", self.string, "Text files (*.txt)")[0]
+        directory = QFileDialog.getSaveFileName(self, "Сохранить всё", self.string, "Text files (*.txt)")[0]
         if directory and self.tracks and self.string:
             if not directory.endswith(".txt"):
                 directory += ".txt"
@@ -242,7 +245,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     @pyqtSlot()
     def save_without_links(self):
-        directory = QtWidgets.QFileDialog.getSaveFileName(
+        directory = QFileDialog.getSaveFileName(
             self, "Сохранить без ссылок", self.string, "Text files (*.txt)"
         )[0]
         if directory and self.tracks and self.string:
@@ -257,7 +260,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def download_audio_dialog(self):
         selected = self.trackList.selectedItems() + self.albumsList.selectedItems()
         selected_tracks = self._get_selected_tracks(selected)
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Выберите папку")
+        directory = QFileDialog.getExistingDirectory(self, "Выберите папку")
         if directory:
             self.download_audio_thread.statusBar = self.statusBar
             if selected_tracks:
@@ -293,7 +296,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.system_tray.showMessage(
                     self.__title__,
                     "Во время скачивания аудиозаписей произошла ошибка",
-                    QtWidgets.QSystemTrayIcon.Critical,
+                    QSystemTrayIcon.Critical,
                 )
             self.statusBar.showMessage("При скачивании произошла ошибка: {}".format(result))
         self.download_audio_thread.albums = []
@@ -363,7 +366,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for album in self.albums:
             if album["title"] == item.text(0):
                 for track in album["tracks"]:
-                    QtWidgets.QTreeWidgetItem(item, ["%(artist)s — %(title)s" % track])
+                    QTreeWidgetItem(item, ["%(artist)s — %(title)s" % track])
 
     def toggle_buttons(self, state: bool):
         self.saveAll.setEnabled(state)
@@ -386,7 +389,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def auth_handler(self, result):
         self.lock.lockForWrite()
         self.get_audio_thread.key = None
-        num, ok = QtWidgets.QInputDialog.getText(self, "Двухфакторная аутентификация", result)
+        num, ok = QInputDialog.getText(self, "Двухфакторная аутентификация", result)
         if ok:
             self.get_audio_thread.key = num
         self.lock.unlock()
@@ -411,9 +414,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         callback=None,
     ):
         if icon_path:
-            action = QtWidgets.QAction(QIcon(icon_path), text, self)
+            action = QAction(QIcon(icon_path), text, self)
         else:
-            action = QtWidgets.QAction(text, self)
+            action = QAction(text, self)
         if status_tip:
             action.setStatusTip(status_tip)
         if shortcut:
@@ -547,19 +550,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.audio_list_received((result["tracks"], result["string"], result["albums"]))
 
 
-class HelpDialog(QtWidgets.QDialog, Ui_helpDialog):
+class HelpDialog(QDialog, Ui_helpDialog):
     def __init__(self, *args):
         super(HelpDialog, self).__init__(*args)
         self.setupUi(self)
 
 
-class AboutDialog(QtWidgets.QDialog, Ui_aboutDialog):
+class AboutDialog(QDialog, Ui_aboutDialog):
     def __init__(self, *args):
         super(AboutDialog, self).__init__(*args)
         self.setupUi(self)
 
 
-class CaptchaDialog(QtWidgets.QDialog, Ui_CaptchaRequest):
+class CaptchaDialog(QDialog, Ui_CaptchaRequest):
     def __init__(self, *args):
         super(CaptchaDialog, self).__init__(*args)
         self.setupUi(self)

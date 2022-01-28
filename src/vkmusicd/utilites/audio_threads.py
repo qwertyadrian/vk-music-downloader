@@ -68,9 +68,7 @@ class GetAudioListThread(QThread):
         self.authorized = True
 
     def _get_audio(self):
-        tracks = []
         albums = []
-        string = str()
         # Try to get post audio list
         post = self.get_group_and_post_id(self.user_link)
         album = self.get_album_id(self.user_link)

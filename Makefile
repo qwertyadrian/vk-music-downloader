@@ -7,5 +7,6 @@ generate_ui: generate_resources
 	pyuic5 src/vkmusicd/ui_files/about.ui --import-from=vkmusicd.resources -o src/vkmusicd/gui/about.py --resource-suffix=
 	pyuic5 src/vkmusicd/ui_files/captcha.ui --import-from=vkmusicd.resources -o src/vkmusicd/gui/captcha.py --resource-suffix=
 
-build: generate_ui
+.PHONY: build
+build:
 	pyinstaller -F -w -i src/vkmusicd/resources/images/logo.ico src/runapp.py --additional-hooks-dir hooks

@@ -108,3 +108,4 @@ venv.bak/
 test_.py
 vk_config.v2.json
 Pipfile.lock
+*.mp3
