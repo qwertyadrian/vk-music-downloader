@@ -56,8 +56,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.clipboard = qApp.clipboard()
         try:
             self.system_tray = QSystemTrayIcon(QIcon(":/images/logo.ico"), self)
-            self.system_tray.messageClicked.connect(self._maximize_window)
-            self.system_tray.activated.connect(self._maximize_window)
+            self.system_tray.messageClicked.connect(self.show)
+            self.system_tray.activated.connect(self.show)
             self.system_tray.show()
         except AttributeError:
             self.system_tray = None
@@ -359,6 +359,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if e.key() == Qt.Key_Space:
             self._pause()
 
+    def closeEvent(self, e):
+        if self.system_tray:
+            e.ignore()
+            self.hide()
+            self.system_tray.showMessage(
+                self.__title__,
+                "Программа была свернута в трей",
+                QSystemTrayIcon.Information
+            )
+
     @pyqtSlot("QTreeWidgetItem*")
     def on_item_expanded(self, item):
         if item.childCount():
@@ -509,13 +519,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.download_audio_thread.isRunning():
             self.download.setEnabled(False)
         self.context_menu.exec(self.trackList.mapToGlobal(point))
-
-    @pyqtSlot()
-    def _maximize_window(self):
-        self.raise_()
-        self.activateWindow()
-        self.showMaximized()
-        self.showNormal()
 
     def _sort_by_artist(self):
         self.trackList.hideColumn(1)
