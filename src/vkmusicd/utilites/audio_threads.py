@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright (C) 2018-2022 Adrian Polyakov
+#  Copyright (C) 2018-2023 Adrian Polyakov
 #
 #  This file is part of VkMusic Downloader
 #
@@ -58,6 +58,8 @@ class GetAudioListThread(QThread):
                 auth_handler=self.auth_handler,
                 captcha_handler=self.captcha_handler,
                 config_filename=self.cookie,
+                app_id=2685278,
+                client_secret="lxhD8OD7dMsqtXIm5IUY",
             )
             self.statusBar.showMessage("Авторизация.")
             self.session.auth()
