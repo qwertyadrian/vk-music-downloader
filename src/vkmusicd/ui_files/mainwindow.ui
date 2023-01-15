@@ -118,11 +118,6 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
       <property name="text">
        <string>Прогресс скачивания:</string>
       </property>
@@ -350,7 +345,7 @@
      <x>0</x>
      <y>0</y>
      <width>877</width>
-     <height>34</height>
+     <height>38</height>
     </rect>
    </property>
    <widget class="QMenu" name="music_menu">
