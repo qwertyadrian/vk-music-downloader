@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#  Copyright (C) 2018-2022 Adrian Polyakov
+#  Copyright (C) 2018-2023 Adrian Polyakov
 #
 #  This file is part of VkMusic Downloader
 #
