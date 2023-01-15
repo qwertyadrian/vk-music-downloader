@@ -64,7 +64,7 @@ class GetAudioListThread(QThread):
                 client_secret="lxhD8OD7dMsqtXIm5IUY",
             )
             self.statusBar.showMessage("Авторизация.")
-            self.session.auth()
+            self.session.auth(token_only=True)
         else:
             self.statusBar.showMessage("Логин не указан, использование пароля в качестве токена")
             self.session = VkApi(token=self.password, captcha_handler=self.captcha_handler)

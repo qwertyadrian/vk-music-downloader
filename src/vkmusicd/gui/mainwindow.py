@@ -186,7 +186,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.get_audio_thread.password = self.password.text()
         self.get_audio_thread.user_link = self.user_link.text()
         self.get_audio_thread.statusBar = self.statusBar
-        self.get_audio_thread.saveData = self.saveData.isChecked()
+        self.get_audio_thread.save_password = self.saveData.isChecked()
         self.toggle_buttons(False)
         self.btnConfirm.setEnabled(False)
         self.trackList.clear()
