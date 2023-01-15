@@ -3,7 +3,7 @@ import m3u8
 import os
 
 from tempfile import NamedTemporaryFile
-from moviepy.editor import AudioFileClip
+from moviepy.audio.io.AudioFileClip import AudioFileClip
 from Crypto.Cipher import AES
 from urllib.request import urlopen
 
