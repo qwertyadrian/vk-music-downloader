@@ -19,6 +19,7 @@
 import json
 import os
 import pathlib
+import tempfile
 from random import choice
 
 from keyring.errors import PasswordDeleteError
@@ -30,6 +31,7 @@ from PyQt5.QtWidgets import (QAction, QDialog, QFileDialog, QInputDialog, QMainW
                              QSystemTrayIcon, QTreeWidgetItem, qApp)
 
 from vkmusicd.utilites.audio_threads import DownloadAudio, GetAudioListThread
+from vkmusicd.utilites.converter import m3u8_to_mp3
 
 from .about import Ui_aboutDialog
 from .captcha import Ui_CaptchaRequest
@@ -311,7 +313,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             track = choice(self.tracks)
             selected_tracks.append(track)
             self.selected.append(self.trackList.findItems("{artist} - {title}".format(**track), Qt.MatchContains)[0])
-        local = QUrl(selected_tracks[0]["url"])
+        tmp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+        tmp_file.close()
+        m3u8_to_mp3(selected_tracks[0]["url"], tmp_file.name)
+        local = QUrl(f"file://{tmp_file.name}")
         media = QMediaContent(local)
         self.mediaPlayer.setMedia(media)
         self.mediaPlayer.play()

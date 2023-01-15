@@ -28,6 +28,8 @@ from vk_api import VkApi, exceptions
 from vk_api.audio import VkAudio
 from wget import download
 
+from .converter import m3u8_to_mp3
+
 MAX_FILENAME_LENGTH = 255
 
 
@@ -272,7 +274,8 @@ class DownloadAudio(QThread):
         name = sub(r"[^a-zA-Z '#0-9.а-яА-Я()-]", "", name)[: MAX_FILENAME_LENGTH - 16] + ".mp3"
         self.statusBar.showMessage("Скачивается {}".format(name))
         out = self.directory / name
-        download(track["url"], out=str(out), bar=None)
+        m3u8_to_mp3(track['url'], name=str(out))
+        # download(track["url"], out=str(out), bar=None)
         with TemporaryDirectory() as tempdir:
             if track.get("album"):
                 for key in track["album"]["thumb"]:
