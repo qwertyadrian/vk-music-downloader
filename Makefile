@@ -9,4 +9,4 @@ generate_ui: generate_resources
 
 .PHONY: build
 build:
-	pyinstaller -F -w -i src/vkmusicd/resources/images/logo.ico src/runapp.py --additional-hooks-dir hooks
+	pyinstaller -F -w -i src/vkmusicd/resources/images/logo.ico src/runapp.py
