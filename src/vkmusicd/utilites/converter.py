@@ -58,6 +58,6 @@ def m3u8_to_mp3(url, name):
     tmp_file.close()
 
     audioclip = AudioFileClip(tmp_file.name)
-    audioclip.write_audiofile(name)
+    audioclip.write_audiofile(name, bitrate="3000k")
     audioclip.close()
     os.unlink(tmp_file.name)
