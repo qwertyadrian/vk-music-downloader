@@ -64,7 +64,7 @@ class GetAudioListThread(QThread):
                 client_secret="lxhD8OD7dMsqtXIm5IUY",
             )
             self.statusBar.showMessage("Авторизация.")
-            self.session.auth(token_only=True)
+            self.session.auth()
         else:
             raise exceptions.LoginRequired
             # self.statusBar.showMessage("Логин не указан, использование пароля в качестве токена")
