@@ -1,5 +1,5 @@
 PyQt5
-vk_api @ git+https://github.com/qwertyadrian/vk_api@auth_fix
+vk_api @ git+https://github.com/python273/vk_api@master
 bs4
 wget
 keyrings.cryptfile
