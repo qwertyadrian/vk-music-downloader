@@ -122,6 +122,8 @@ class GetAudioListThread(QThread):
     def _get_tracks(self, owner_id, album_id=None, access_hash=None):
         try:
             tracks = self.vk_audio.get(owner_id, album_id, access_hash)
+        except exceptions.AccessDenied:
+            return list()
         except:
             values = {"owner_id": owner_id}
             if album_id:
